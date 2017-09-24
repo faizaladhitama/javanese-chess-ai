@@ -1,3 +1,4 @@
+import math
 import random
 
 
@@ -143,9 +144,26 @@ class Board:
     def assign_pawn_to_board(self, player1, player2):
         n = 0
         for i in range(len(player1.get_pawn())):
+            player1.get_pawn()[n].set_coordinate(n)
+            player2.get_pawn()[n].set_coordinate(n + 4)
             self._node_list[n].set_pawn(player1.get_pawn()[n])
             self._node_list[n + 4].set_pawn(player2.get_pawn()[n])
             n += 1
+
+    def select_node(self, number):
+        return self.get_node_list()[number]
+
+    """""
+    def choose_pawn(self, current_state, player=""):
+        pawn = current_state.get_pawn()
+        if pawn is not None:
+            if pawn.get_controller() == player:
+                return pawn
+            else:
+                raise Exception("That is not your pawn !")
+        else:
+            raise Exception("That tile does not have any pawn")
+    """""
 
     def possible_move(self, node):
         legal_edge = list()
@@ -159,6 +177,9 @@ class Board:
                 legal_edge.append(temp_node.get_name())
         return legal_edge
 
+    def pawn_moves(self, node):
+        return self.possible_move(node)
+
     def pawn_transition(self, current_state, next_state, player=""):
         legal_edge = self.possible_move(current_state)
         if current_state.get_pawn() is None:
@@ -170,6 +191,7 @@ class Board:
         if next_state.get_name() not in legal_edge:
             raise Exception("You cannot move your pawn to that tile")
         temp = current_state.get_pawn()
+        temp.set_coordinate(next_state.get_name())
         current_state.remove_pawn()
         next_state.set_pawn(temp)
 
@@ -179,16 +201,37 @@ class Board:
     def get_edge_list(self):
         return self._edge_list
 
-    def win_cond(self):
-        if self.check_row():
-            return True
-        elif self.check_column():
-            return True
-        elif self.check_diagonal():
-            return True
-        return False
+    def utility(self):
+        return self.win_cond(True)
 
-    def check_row(self):
+    def win_cond(self, isUtility=False):
+        if isUtility == True:
+            row = self.check_row(True)
+            column = self.check_column(True)
+            diagonal = self.check_diagonal(True)
+            if row[0]:
+                return self.controller_checker(row[1])
+            elif column[0]:
+                return self.controller_checker(column[1])
+            elif diagonal[0]:
+                return self.controller_checker(diagonal[1])
+            return 0
+        else:
+            if self.check_row():
+                return True
+            elif self.check_column():
+                return True
+            elif self.check_diagonal():
+                return True
+            return False
+
+    def controller_checker(self, controller):
+        if controller == "Human":
+            return -1
+        else:
+            return 1
+
+    def check_row(self, isUtility=False):
         first = [0, 1, 2]
         second = [7, 8, 3]
         third = [6, 5, 4]
@@ -211,16 +254,21 @@ class Board:
                     if controller_temp == str(
                             self.get_node_list()[j[1]].get_pawn().get_controller()) and controller_temp == str(
                         self.get_node_list()[j[2]].get_pawn().get_controller()):
+                        if isUtility == True:
+                            return [True, controller_temp]
                         return True
+        if isUtility:
+            return [False]
         return False
 
-    def check_column(self):
+    def check_column(self, isUtility=False):
         first = [0, 6, 7]
         second = [1, 5, 8]
         third = [2, 3, 4]
 
         column = [first, second, third]
 
+        """""
         for i in column:
             temp_node = self.get_node_list()[i[0]].get_pawn()
             if temp_node is None:
@@ -230,15 +278,21 @@ class Board:
                 if controller_temp == str(
                         self.get_node_list()[i[1]].get_pawn().get_controller()) and controller_temp == str(
                     self.get_node_list()[i[2]].get_pawn().get_controller()):
+                    if isUtility == True:
+                        return [True, controller_temp]
                     return True
         return False
+        """
 
-    def check_diagonal(self):
+        return self.line_loop(column, isUtility)
+
+    def check_diagonal(self, isUtility=False):
         bottom_left_upper_right = [0, 4, 8]
         bottom_right_upper_left = [2, 6, 8]
 
         diagonal = [bottom_left_upper_right, bottom_right_upper_left]
 
+        """"
         for i in diagonal:
             temp_node = self.get_node_list()[i[0]].get_pawn()
             if temp_node is None:
@@ -248,7 +302,29 @@ class Board:
                 if controller_temp == str(
                         self.get_node_list()[i[1]].get_pawn().get_controller()) and controller_temp == str(
                     self.get_node_list()[i[2]].get_pawn().get_controller()):
+                    if isUtility == True:
+                        return [True, controller_temp]
                     return True
+        return False
+        """""
+
+        return self.line_loop(diagonal, isUtility)
+
+    def line_loop(self, lines, isUtility):
+        for i in lines:
+            temp_node = self.get_node_list()[i[0]].get_pawn()
+            if temp_node is None:
+                continue
+            controller_temp = temp_node.get_controller()
+            if self.get_node_list()[i[1]].get_pawn() is not None and self.get_node_list()[i[2]].get_pawn() is not None:
+                if controller_temp == str(
+                        self.get_node_list()[i[1]].get_pawn().get_controller()) == str(
+                    self.get_node_list()[i[2]].get_pawn().get_controller()):
+                    if isUtility == True:
+                        return [True, controller_temp]
+                    return True
+        if isUtility:
+            return [False]
         return False
 
     def initial_state(self, player):
@@ -271,17 +347,54 @@ class Board:
             return True
         return False
 
+    @staticmethod
+    def pawn_possible_move(arr_of_move):
+        moves = ""
+        for i in arr_of_move:
+            moves += i + " "
+        return moves
+
+    @staticmethod
+    def lists_of_player_pawn(pawn):
+        pawns = ""
+        for i in pawn:
+            pawns += str(i.get_coordinate()) + " "
+        return pawns
+
+    """""
+    def get_player_pawn(self, player):
+        return player.get_pawn()
+    """""
+
+    def moveable_pawn(self, player):
+        pawn = player.get_pawn()
+        nodes = list()
+        for i in pawn:
+            coordinate = int(i.get_coordinate())
+            temp_node = self.select_node(coordinate)
+            total_move = len(self.possible_move(temp_node))
+            if total_move > 0:
+                nodes.append(temp_node.get_pawn())
+        return nodes
+
 
 class Pawn:
     def __init__(self, name, controller="None"):
         self._name = name
         self._controller = controller
+        self._coordinate = ""
 
     def get_name(self):
         return self._name
 
     def get_controller(self):
         return self._controller
+
+    def set_coordinate(self, coordinate):
+        self._coordinate = coordinate
+
+    def get_coordinate(self):
+        return self._coordinate
 
     def __repr__(self):
         return self._name
@@ -302,6 +415,12 @@ class Player:
         for i in self._pawn_list:
             print(i.get_name() + " " + i.get_controller())
 
+    def check_pawn(self):
+        nodes = ""
+        for i in self.get_pawn():
+            nodes += str(i.get_coordinate()) + " "
+        return nodes
+
 
 class Human(Player):
     def __init__(self):
@@ -312,79 +431,40 @@ class AI(Player):
     def __init__(self):
         (super(AI, self).__init__("AI"))
 
+    def minimax(self):
+        pass
 
-''''
-board = Board()
-print("Test Node : ")
-board.test_node()
-print("\nTest Edge : ")
-board.test_edge()
-print("\nTest each Node in Edge : ")
-board.test_node_in_edge()
-print("\nTest Connection each Node : ")
-board.test_connection()
+    def max(self):
+        pass
 
-human = Human()
-print("\nTest Human Pawn : ")
-human.test_pawn()
+    def min(self):
+        pass
 
-ai = AI()
-print("\nTest AI Pawn : ")
-ai.test_pawn()
+    def depth_limit_search(self, limit, node):
+        pass
 
-board.assign_pawn_to_board(human, ai)
-print("\nTest Assign Pawn to Board : ")
-board.test_node_assigned()
+    def recursive_dls(self):
+        pass
 
-print("\nTest Possible Move : ")
-board.test_possible_move()
+    def a_star(self):
+        pass
 
-print("\nTest Pawn Transition:")
-board.pawn_transition(board.get_node_list()[0],board.get_node_list()[7])
-board.test_node_assigned()
+    def heuristic_function(self):
+        pass
 
-print(board.check_column())
-print(board.check_diagonal())
-print(board.check_row())
+    def start_to_n(self):
+        pass
 
-board.pawn_transition(board.get_node_list()[0], board.get_node_list()[7])
-board.pawn_transition(board.get_node_list()[1], board.get_node_list()[8])
-board.pawn_transition(board.get_node_list()[2], board.get_node_list()[3])
-print(board.check_row())
-
-board = temp_board
-board.assign_pawn_to_board(human, ai)
-board.pawn_transition(board.get_node_list()[0], board.get_node_list()[7])
-board.pawn_transition(board.get_node_list()[6], board.get_node_list()[8])
-board.pawn_transition(board.get_node_list()[7], board.get_node_list()[6])
-board.pawn_transition(board.get_node_list()[8], board.get_node_list()[3])
-board.pawn_transition(board.get_node_list()[1], board.get_node_list()[8])
-print(board.check_diagonal())
-
-board = temp_board
-board.assign_pawn_to_board(human, ai)
-board.pawn_transition(board.get_node_list()[0], board.get_node_list()[7])
-board.pawn_transition(board.get_node_list()[6], board.get_node_list()[8])
-board.pawn_transition(board.get_node_list()[7], board.get_node_list()[6])
-board.pawn_transition(board.get_node_list()[8], board.get_node_list()[3])
-board.pawn_transition(board.get_node_list()[1], board.get_node_list()[0])
-board.pawn_transition(board.get_node_list()[5], board.get_node_list()[8])
-board.pawn_transition(board.get_node_list()[2], board.get_node_list()[1])
-board.pawn_transition(board.get_node_list()[4], board.get_node_list()[5])
-board.pawn_transition(board.get_node_list()[0], board.get_node_list()[7])
-board.pawn_transition(board.get_node_list()[5], board.get_node_list()[4])
-board.pawn_transition(board.get_node_list()[1], board.get_node_list()[0])
-print(board.check_column())
-'''
-
-board = Board()
-temp_board = board
-human = Human()
-ai = AI()
-board.assign_pawn_to_board(human, ai)
+    def funct(self):
+        return self.start_to_n() + self.heuristic_function()
 
 
 def main():
+    board = Board()
+    human = Human()
+    ai = AI()
+    board.assign_pawn_to_board(human, ai)
+
     first_turn = "Human"
     if random.random() > 0.5:
         first_turn = "AI"
@@ -395,15 +475,53 @@ def main():
         turn = ["AI", "Human"]
 
     now = turn[0]
-    while (True):
+    while not board.win_cond():
         print("Now is {} turn\n".format(now))
         board.display_matrix()
-        current_tile = int(input("Choose your tile to move :"))
-        next_tile = int(input("Choose your next tile :\n"))
 
-        board.pawn_transition(board.get_node_list()[current_tile], board.get_node_list()[next_tile], now)
+        if now == "Human":
+            pawn = board.moveable_pawn(human)
+        else:
+            pawn = board.moveable_pawn(ai)
+
+        print("\nYour moveable pawns are on node :\n {} \n".format(board.lists_of_player_pawn(pawn)))
+
+        if now == "AI":
+            current_tile = int(pawn[int(math.floor(random.random() * len(pawn)))].get_coordinate())
+            print("Choose your tile to move :\n {}".format(current_tile))
+        else:
+            current_tile = int(input("Choose your tile to move :"))
+
+        possible_move = board.pawn_moves(board.select_node(current_tile))
+
+        """""
+        if now == "AI" and len(possible_move) == 0:
+            while len(board.possible_move(board.select_node(current_tile))) == 0:
+                current_tile = int(pawn[math.floor(random.random() * len(pawn))].get_coordinate())
+                possible_move = board.possible_move(board.select_node(current_tile))
+            print("Choose your tile to move :\n {}".format(current_tile))
+        """""
+
+        print("\nYou can move your pawn to node:\n {} \n".format(board.pawn_possible_move(possible_move)))
+
+        if now == "AI":
+            next_tile = int(possible_move[int(math.floor(random.random() * len(possible_move)))])
+            print("Choose your next tile :\n {}".format(next_tile))
+        else:
+            next_tile = int(input("Choose your next tile : "))
+
+        board.pawn_transition(board.select_node(current_tile), board.select_node(next_tile), now)
 
         if now == "Human":
             now = "AI"
         else:
             now = "Human"
+        print()
+    if now == "Human":
+        winner = "AI"
+    else:
+        winner = "Human"
+    print("{} is a winner !".format(winner))
+
+
+main()
