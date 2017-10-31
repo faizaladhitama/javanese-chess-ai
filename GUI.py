@@ -1,252 +1,138 @@
-from tkinter import *
-from PIL import Image,ImageTk
+import pygame, itertools,sys, random
 import os
+from pygame.locals import *
 
-#Batas pion paling kiri
-PION_LEFT_MAX_X0 = 370
+BOARDWIDTH = 3  # number of columns in the board
+BOARDHEIGHT = 3 # number of rows in the board
 
-#Batas pion paling kanan
-PION_RIGHT_MAX_X1 = 970
+WINDOWWIDTH = 1080
+WINDOWHEIGHT = 640
 
-#Batas pion paling atas
-PION_UP_MAX_Y0 = 50
+#XMARGIN = int((WINDOWWIDTH - (TILESIZE * BOARDWIDTH + (BOARDWIDTH - 1))) / 2)
+#YMARGIN = int((WINDOWHEIGHT - (TILESIZE * BOARDHEIGHT + (BOARDHEIGHT - 1))) / 2)
+BGCOLOR = pygame.image.load(os.path.join("images","bg.jpg"))
+BOARD = pygame.image.load(os.path.join("images","board.png"))
 
-#Batas pion paling bawah
-PION_DOWN_MAX_Y1 = 650
+BLUE_PION = pygame.image.load(os.path.join("images","blue.png"))
+PINK_PION = pygame.image.load(os.path.join("images","pink.png"))
+YELLOW_SPOT = pygame.image.load(os.path.join("images","yellow_spot.png"))
+PURPLE_SPOT = pygame.image.load(os.path.join("images","purple_spot.png"))
 
-class GUI : 
-	def __init__(self, master):
-		self.frame = Canvas(master, bg = "#7BC5DA", width = master.winfo_screenwidth(), height = master.winfo_screenheight())
-		self.master = master
-
-	"""
-	Menginisiasikan Items2 pada GUI
-	"""
-	def initiateItems(self):
-		
-		theBoard = Board(self.frame)
-
-		theLine = Line(self.frame)
-
-		#Bikin Boardnya
-		theBoard.create_board()
-
-		theNode = Node(self.frame)
-		PinkPion = Pion(self.frame,"pink")
-		BluePion = Pion(self.frame,"blue")
-
-		#bikin Edgenya
-		theLine.create_line(390,70,670,350) #\ atas ke tengah
-		theLine.create_line(670,350,950,630) #\ tengah ke bawah
-
-		theLine.create_line(670,70,670,350) #| atas ke tengah
-		theLine.create_line(670,350,670,630) #| tengah ke bawah
-
-		theLine.create_line(950,70,670,350) #/ atas ke tengah
-		theLine.create_line(670,350,390,630) #/ tengah ke bawah
-
-		theLine.create_line(390,350,670,350) # - kiri ke tengah
-		theLine.create_line(670,350,950,350) #- tengah ke kanan
-
-		#Bikin Node (yang lingkaran kuning kecil)
-		theNode.create_node(375,55,405,85) #node kiri atas
-		theNode.create_node(655,55,685,85) #node tengah atas
-		theNode.create_node(935,55,965,85) #node kanan atas
-
-		theNode.create_node(375,335,405,365) #node kiri tengah 
-		theNode.create_node(655,335,685,365) #node tengah tengah
-		theNode.create_node(935,335,965,365) #node kanan tengah 
-
-		theNode.create_node(375,615,405,645) #node kiri bawah 
-		theNode.create_node(655,615,685,645) #node tengah bawah
-		theNode.create_node(935,615,965,645) #node kanan bawah
-
-		#bikin pion2nya
-		PinkPion.create_pion(370,50,410,90)
-		PinkPion.create_pion(650,50,690,90)
-		PinkPion.create_pion(930,50,970,90)
-
-		BluePion.create_pion(370,610,410,650)
-		BluePion.create_pion(650,610,690,650)
-		BluePion.create_pion(930,610,970,650)
-
-		#bind_Event_Listener
-		self.frame.bind('<Enter>',self.pionOnClick)
-
-	#buat ngepack frame
-	def pionOnClick(self,event):
-		flagOnClick = 0
-		if(event.x <= PION_LEFT_MAX_X0 and event.x >= PION_RIGHT_MAX_X1 and event.y <= PION_UP_MAX_Y0 and event.y >= PION_DOWN_MAX_Y1):
-			print("terklik luar board")
-			print(event.x)
-			print(event.y)
-			self.frame.create_oval(event.x,event.x+10,event.y,event.y+10, fill = "#FBE9AD", outline = "#FBE9AD") 
-		else:
-			print("terklik dalam")
-			print(event.x)
-			print(event.y)
-			self.frame.create_oval(event.x,event.x+10,event.y,event.y+10, fill = "#FBE9AD", outline = "#FBE9AD") 
-
-	def packed(self):
-		self.master.minsize(width=self.master.winfo_screenwidth(), height=self.master.winfo_screenheight())
-		self.master.maxsize(width=self.master.winfo_screenwidth(), height=self.master.winfo_screenheight())
-		self.initiateItems()
-		self.frame.pack()
-
-#class board
-class Board : 
-	def __init__(self,frame):
-		self.frame = frame
-
-	def create_board(self):
-		self.frame.create_rectangle(350, 30, 990, 670, fill="#BA927F", width = 20, outline = "#392316")
-		self.frame.create_rectangle(390, 70, 950, 630, fill="#BA927F", width = 10, outline = "#392316")
-
-#class edge
-class Line : 
-	def __init__(self,frame):
-		self.frame = frame
-	def create_line(self,x0,y0,x1,y1):
-		self.frame.create_line(x0, y0, x1, y1, width = 10, fill = "#392316")
-
-#class Node
-class Node : 
-	def __init__(self,frame):
-		self.frame = frame
-	def create_node(self,x0,y0,x1,y1):
-		self.frame.create_oval(x0, y0, x1, y1, fill = "#FBE9AD", outline = "#FBE9AD")
-
-#class pion
-class Pion :
-	def __init__(self,frame,color):
-		self.frame = frame
+class Pion():
+	def __init__(self, x, y,color):
+		self.x = x
+		self.y = y
 		self.color = color
-		self.x0 = 0
-		self.y0 = 0
-		self.x1 = 0
-		self.y1 = 0
 
-	def create_pion(self, x0, y0, x1, y1):
-		self.set_initialPlace(x0, y0, x1, y1)
-		#kondisi warna kalo biru warna pionnya biru
+	def setColor(self):
 		if(self.color == "blue"):
-			self.frame.create_oval(x0, y0, x1, y1, fill = "#8799CB", outline = "#4E586C", width = 5)
+			self.pion = BLUE_PION
 		elif(self.color == "pink"):
-			self.frame.create_oval(x0, y0, x1, y1, fill = "#E3ADC5", outline = "#66525B", width = 5)
+			self.pion = PINK_PION
 
-	#buat ganti posisi awal (defaultnya kan 0)
-	def set_initialPlace(self, x0, y0, x1, y1):
-		self.x0 = x0
-		self.y0 = y0
-		self.x1 = x1
-		self.y1 = y1
+class Board():
+	turn = 1
+	def __init__(self):
+		os.environ['SDL_VIDEO_CENTERED'] = '1'
+		self.surface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+		self.game_over = False
+		self.surface.blit(BGCOLOR,(0,0))
+		self.surface.blit(pygame.transform.scale(BOARD,(WINDOWHEIGHT-50,WINDOWHEIGHT-50)),(250,25))
+		self.clicked = 0
+		self.comeFrom = None
+		self.board = [['p','p','p'],['e','e','e'],['b','b','b']]
+		self.setup()
 
-	#jalan keatas
-	def move_Up(self):
-		up_Y0 = self.y0 - 280
-		up_Y1 = self.y1 - 280
-		if(up_Y0 < PION_UP_MAX_Y0):
-			print("Unable to move")
-		else:
-			self.y0 = up_Y0
-			self.y1 = up_Y1
+	def setup(self):
+		pygame.display.set_caption('Catur Jawa by Tanpa Nama')
+		self.draw()
 
-	#jalan ke bawah
-	def move_Down(self):
-		down_Y0 = self.y0 + 280
-		down_Y1 = self.y1 + 280
-		if(down_Y1 > PION_DOWN_MAX_Y1):
-			print("Unable to move")
-		else:
-			self.y0 = down_Y0
-			self.y1 = down_Y1
+	def draw(self,highlightSquares=[(1,1)]):
+		#draw blank board
+		print(self.board)
+		boardSize = len(self.board)
+		current_square = 0
+		for r in range(boardSize):
+			for c in range(boardSize):
+				(screenX,screenY) = self.ConvertToScreenCoords((r,c))
+				print((screenX,screenY))
+				self.surface.blit(pygame.transform.scale(YELLOW_SPOT,(50,50)),(screenX,screenY))
+				current_square = (current_square+1)%2
 
-	#jalan ke kiri
-	def move_Left(self):
-		left_X0 = self.x0 - 280
-		left_X1 = self.x1 - 280
-		if(left_X0 < PION_LEFT_MAX_X0):
-			print("Unable to move")
-		else:
-			self.x0 = left_x0
-			self.x1 = left_x1
+			current_square = (current_square+1)%2
 
-	#jalan ke kanan
-	def move_Right(self):
-		right_X0 = self.x0 + 280
-		right_X1 = self.x1 + 280
-		if(right_X1 > PION_RIGHT_MAX_X1):
-			print("Unable to move")
-		else:
-			self.x0 = right_x0
-			self.x1 = right_x1
+		for square in highlightSquares:
+			(screenX,screenY) = self.ConvertToScreenCoords(square)
+			self.surface.blit(pygame.transform.scale(PURPLE_SPOT,(50,50)),(screenX,screenY))
 
-	#jalan diagonal atas kiri
-	def move_DiagonalUpLeft(self):
-		diagonalUpLeft_X0 = self.x0 - 280
-		diagonalUpLeft_X1 = self.x1 - 280
-		diagonalUpLeft_Y0 = self.y0 - 280
-		diagonalUpLeft_Y1 = self.y1 - 280
+		for r in range(boardSize):
+			for c in range(boardSize):
+				(screenX,screenY) = self.ConvertToScreenCoords((r,c))
+				if(self.board[r][c] == 'p'):
+					self.surface.blit(pygame.transform.scale(PINK_PION,(50,50)),(screenX,screenY))
+				elif(self.board[r][c] == 'b'):
+					self.surface.blit(pygame.transform.scale(BLUE_PION,(50,50)),(screenX,screenY))
 
-		if(diagonalUpLeft_X0 < PION_LEFT_MAX_X0 or diagonalUpLeft_Y0 < PION_UP_MAX_Y0):
-			print("Unable to move")
-		else:
-			self.x0 = diagonalUpLeft_X0
-			self.x1 = diagonalUpLeft_X1
-			self.y0 = diagonalUpLeft_Y0
-			self.y1 = diagonalUpLeft_Y1
+	def getPlayerInput(self,Clicked):
+		squareClicked = self.ConvertToChessCoords(Clicked)
+		(X,Y) = squareClicked
+		print(self.clicked)
+		
+		if(self.clicked == 0):
+			self.comeFrom = squareClicked
+			self.clicked = 1
+			print(self.board)
+		elif(self.clicked == 1 and (self.board[X][Y] is 'p' or self.board[X][Y] is 'b')):
+			self.comeFrom = None
+			self.clicked = 0
+			print(self.board)
+		elif(self.clicked == 1 and (self.board[X][Y] is 'e')):
+			self.movePion(self.comeFrom,squareClicked)
+			self.clicked = 0
 
-	#jalan diagonal atas kanan
-	def move_DiagonalUpRight(self):
-		diagonalUpRight_X0 = self.x0 + 280
-		diagonalUpRight_X1 = self.x1 + 280
-		diagonalUpRight_Y0 = self.y0 - 280
-		diagonalUpRight_Y1 = self.y1 - 280
+	def movePion(self,fromSquare,toSquare):
+		(XFrom,YFrom) = fromSquare
+		(XTo,YTo) = toSquare
 
-		if(diagonalUpRight_X1 > PION_RIGHT_MAX_X1 or diagonalUpRight_Y0 < PION_UP_MAX_Y0):
-			print("Unable to move")
-		else:
-			self.x0 = diagonalUpRight_X0
-			self.x1 = diagonalUpRight_X1
-			self.y0 = diagonalUpRight_Y0
-			self.y1 = diagonalUpRight_Y1
+		self.board[XTo][YTo] = self.board[XFrom][YFrom]
+		self.board[XFrom][YFrom] = 'e'
+		print(self.board)
+		self.draw()
 
-	#jalan diagonal bawah kiri
-	def move_DiagonalDownLeft(self):
-		diagonalDownLeft_X0 = self.x0 - 280
-		diagonalDownLeft_X1 = self.x1 - 280
-		diagonalDownLeft_Y0 = self.y0 + 280
-		diagonalDownLeft_Y1 = self.y1 + 280
+	def ConvertToScreenCoords(self,chessSquareTuple):
+		#converts a (row,col) chessSquare into the pixel location of the upper-left corner of the square
+		(row,col) = chessSquareTuple
+		screenX = 300 + col*220
+		screenY = 80 + row*220
+		return (screenX,screenY)
 
-		if(diagonalDownLeft_X0 < PION_LEFT_MAX_X0 or diagonalDownLeft_Y1 > PION_DOWN_MAX_Y1):
-			print("Unable to move")
-		else:
-			self.x0 = diagonalDownLeft_X0
-			self.x1 = diagonalDownLeft_X1
-			self.y0 = diagonalDownLeft_Y0
-			self.y1 = diagonalDownLeft_Y1
-
-	#jalan diagonal bawah kanan
-	def move_DiagonalDownRight(self):
-		diagonalDownRight_X0 = self.x0 + 280
-		diagonalDownRight_X1 = self.x1 + 280
-		diagonalDownRight_Y0 = self.y0 + 280
-		diagonalDownRight_Y1 = self.y1 + 280
-
-		if(diagonalDownRight_X1 > PION_RIGHT_MAX_X1 or diagonalDownRight_Y1 > PION_DOWN_MAX_Y1):
-			print("Unable to move")
-		else:
-			self.x0 = diagonalDownRight_X0
-			self.x1 = diagonalDownRight_X1
-			self.y0 = diagonalDownRight_Y0
-			self.y1 = diagonalDownRight_Y1
+	def ConvertToChessCoords(self,screenPositionTuple):
+		#converts a screen pixel location (X,Y) into a chessSquare tuple (row,col)
+		#x is horizontal, y is vertical
+		#(x=0,y=0) is upper-left corner of the screen
+		(X,Y) = screenPositionTuple
+		row = int((Y-80) / 220)
+		col = int((X-300) / 220)
+		return (row,col)
 
 if __name__ == '__main__':
-	root = Tk()
-	theGUI = GUI(root)
-	theGUI.packed()
+	pygame.init()
+	clock = pygame.time.Clock()
+	board = Board()
 
-	root.title("Catur Jawa")
-	root.wm_state('zoomed')
-	root.mainloop()
+	while True:
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				pygame.quit()
+				sys.exit()
+			elif event.type == MOUSEBUTTONUP:
+				(mouseX,mouseY) = pygame.mouse.get_pos()
+				board.getPlayerInput((mouseX,mouseY))
+		pygame.display.update()
+		clock.tick(30)
+
 	
+
+
+
+
