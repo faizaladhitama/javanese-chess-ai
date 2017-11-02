@@ -648,7 +648,7 @@ class AI(Player):
                 move_score = self.max_alpha_beta(board, limit - 1, alpha, beta)
                 if move_score < move_best_score:
                     move_best_score = move_score
-                if move_best_score <= beta:
+                if move_best_score <= alpha:
                     return move_best_score
                 beta = min(beta, move_best_score)
                 board = copy.deepcopy(temp_board)
