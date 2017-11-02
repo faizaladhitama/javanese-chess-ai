@@ -21,7 +21,8 @@ BLUE_PION = pygame.image.load(os.path.join("images","blue.png"))
 PINK_PION = pygame.image.load(os.path.join("images","pink.png"))
 YELLOW_SPOT = pygame.image.load(os.path.join("images","yellow_spot.png"))
 PURPLE_SPOT = pygame.image.load(os.path.join("images","purple_spot.png"))
-
+WIN = pygame.image.load(os.path.join("images","You_Win.png"))
+LOSE = pygame.image.load(os.path.join("images","You_Lose.png"))
 class BoardGUI:
 	turn = 1
 	def __init__(self,surface):
@@ -75,9 +76,9 @@ class BoardGUI:
 			for c in range(boardSize):
 				(screenX,screenY) = self.ConvertToScreenCoords((r,c))
 				if(self.board[r][c] == 'Human'):
-					self.surface.blit(pygame.transform.scale(PINK_PION,(50,50)),(screenX,screenY))
-				elif(self.board[r][c] == 'AI'):
 					self.surface.blit(pygame.transform.scale(BLUE_PION,(50,50)),(screenX,screenY))
+				elif(self.board[r][c] == 'AI'):
+					self.surface.blit(pygame.transform.scale(PINK_PION,(50,50)),(screenX,screenY))
 		print(self.board)
 		print("cekin")
 
@@ -242,10 +243,21 @@ def main() :
 			now = "Human"
 
 		print()
-	if now == "Human":
-		winner = "AI"
-	else:
-		winner = "Human"
-	print("{} is a winner !".format(winner))
+	gui.getAboard().display_matrix()
+	gui.draw()
+	while(True):
+		if now == "Human":
+			winner = "AI"
+			surface.blit(pygame.transform.scale(LOSE,(WINDOWHEIGHT-100,WINDOWHEIGHT-347)),(277,180))
+		else:
+			winner = "Human"
+			surface.blit(pygame.transform.scale(WIN,(WINDOWHEIGHT-100,WINDOWHEIGHT-347)),(277,180))
+		for event in pygame.event.get():
+				if(event.type == QUIT):
+					pygame.quit()
+					sys.exit()
+
+		pygame.display.update()
+
 
 main()
