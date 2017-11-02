@@ -9,7 +9,7 @@ The player who succeeds in placing three of their marks in a horizontal except i
 or diagonal row wins the game.</p>
 
 <h3>Spesification</h3>
-Language : Python
+Language : Python<br>
 GUI : PyGame package
 
 <h3>Search Algorithm</h3>
