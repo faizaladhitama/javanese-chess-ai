@@ -12,5 +12,5 @@ or diagonal row wins the game.</p>
 Language : Python
 GUI : PyGame package
 
-<h3>Search Algorithm<h3>
+<h3>Search Algorithm</h3>
 Minimax, Alpha-Beta Pruning, etc
