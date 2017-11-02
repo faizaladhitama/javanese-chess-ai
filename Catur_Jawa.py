@@ -1,6 +1,5 @@
 import copy
-import random
-import time
+
 """
 Catur Jawa Gameplay
 
@@ -104,11 +103,11 @@ class Board:
         self._turn = ""
         self.generate_board()
 
-    def checkEmptyNode(self,node,player):
+    def checkEmptyNode(self, node, player):
         nodeCheck = self.select_node(node).get_pawn()
-        if(nodeCheck is None):
+        if (nodeCheck is None):
             return "That tile does not have any pawn"
-        elif(nodeCheck.get_controller() != player):
+        elif (nodeCheck.get_controller() != player):
             return "That is not your pawn !"
         else:
             return "Good!"
@@ -249,16 +248,16 @@ class Board:
         legal_edge = self.possible_move(current_state)
         if current_state.get_pawn() is None:
             return "That tile does not have any pawn"
-            #raise Exception("That tile does not have any pawn")
+            # raise Exception("That tile does not have any pawn")
         if next_state.get_pawn() is not None:
             return "Node is occupied"
-            #raise Exception("Node is occupied")
+            # raise Exception("Node is occupied")
         if player != "" and current_state.get_pawn().get_controller() != player:
-            #raise Exception("That is not your pawn !")
+            # raise Exception("That is not your pawn !")
             return "That is not your pawn !"
         if next_state.get_name() not in legal_edge:
             return "You cannot move your pawn to that tile"
-            #raise Exception("You cannot move your pawn to that tile")
+            # raise Exception("You cannot move your pawn to that tile")
         temp = current_state.get_pawn()
         temp.set_coordinate(next_state.get_name())
         current_state.remove_pawn()
@@ -500,7 +499,6 @@ class AI(Player):
         (super(AI, self).__init__("AI"))
 
     def minimax(self, virtual_board, limit):
-        self._test += 1
         board = copy.deepcopy(virtual_board)
         pawns = board.moveable_pawn(board.get_player())
         best_score = float('-inf')
@@ -533,7 +531,6 @@ class AI(Player):
         return current_node, very_best_move
 
     def min_play(self, virtual_board, limit):
-        self._test += 1
         board = copy.deepcopy(virtual_board)
         board.next_turn()
         if board.win_cond():
@@ -559,7 +556,6 @@ class AI(Player):
         return move_best_score
 
     def max_play(self, virtual_board, limit):
-        self._test += 1
         board = copy.deepcopy(virtual_board)
         board.next_turn()
         if board.win_cond():
@@ -595,7 +591,6 @@ class AI(Player):
         return current_tile, next_tile
 
     def alpha_beta_pruning(self, virtual_board, limit):
-        self._test += 1
         board = copy.deepcopy(virtual_board)
         pawns = board.moveable_pawn(board.get_player())
         best_score = float('-inf')
@@ -627,7 +622,6 @@ class AI(Player):
         return current_node, very_best_move
 
     def min_alpha_beta(self, virtual_board, limit, alpha, beta):
-        self._test += 1
         board = copy.deepcopy(virtual_board)
         board.next_turn()
         if board.win_cond():
@@ -641,6 +635,7 @@ class AI(Player):
         for pawn in pawns:
             moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
             node = board.select_node(int(pawn.get_coordinate()))
+            temp_beta = beta
             for move in moves:
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
@@ -653,10 +648,10 @@ class AI(Player):
                 beta = min(beta, move_best_score)
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
+            beta = temp_beta
         return move_best_score
 
     def max_alpha_beta(self, virtual_board, limit, alpha, beta):
-        self._test += 1
         board = copy.deepcopy(virtual_board)
         board.next_turn()
         if board.win_cond():
@@ -670,6 +665,7 @@ class AI(Player):
         for pawn in pawns:
             moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
             node = board.select_node(int(pawn.get_coordinate()))
+            temp_alpha = alpha
             for move in moves:
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
@@ -682,6 +678,7 @@ class AI(Player):
                 alpha = max(alpha, move_best_score)
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
+            alpha = temp_alpha
         return move_best_score
 
     def test_alpha_beta_pruning(self, board, limit):
@@ -693,6 +690,7 @@ class AI(Player):
         print("Current tile :", current_tile)
         print("Next tile :", next_tile)
         return current_tile, next_tile
+
 
 """
 def main():
