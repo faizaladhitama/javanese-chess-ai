@@ -1,7 +1,6 @@
 import copy
 import random
 import time
-
 """
 Catur Jawa Gameplay
 
@@ -25,6 +24,12 @@ class Node:
     def __repr__(self):
         """Return node name"""
         return self._name
+
+    def getPlayerClick(self):
+        return self.player_click
+
+    def setPlayerClick(self, hadClicked):
+        self.player_click = hadClicked
 
     def get_name(self):
         """Return node name"""
@@ -98,6 +103,15 @@ class Board:
         self._matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         self._turn = ""
         self.generate_board()
+
+    def checkEmptyNode(self,node,player):
+        nodeCheck = self.select_node(node).get_pawn()
+        if(nodeCheck is None):
+            return "That tile does not have any pawn"
+        elif(nodeCheck.get_controller() != player):
+            return "That is not your pawn !"
+        else:
+            return "Good!"
 
     def generate_board(self):
         """Create list of node and edge, append nodes to edges"""
@@ -173,7 +187,7 @@ class Board:
                 elif num == 8:
                     self._matrix[1][1] = 0
             else:
-                tile_name = i.get_pawn().get_controller() + " " + i.get_pawn().get_name()
+                tile_name = i.get_pawn().get_controller()
                 num = int(i.get_name())
                 if num == 0:
                     self._matrix[2][0] = tile_name
@@ -193,8 +207,11 @@ class Board:
                     self._matrix[1][0] = tile_name
                 elif num == 8:
                     self._matrix[1][1] = tile_name
+
         for i in self._matrix:
             print(i)
+
+        return self._matrix
 
     def assign_pawn_to_board(self, player1, player2):
         """Add pawn to node"""
@@ -231,17 +248,22 @@ class Board:
         """Move player pawn from current node to next node"""
         legal_edge = self.possible_move(current_state)
         if current_state.get_pawn() is None:
-            raise Exception("That tile does not have any pawn")
+            return "That tile does not have any pawn"
+            #raise Exception("That tile does not have any pawn")
         if next_state.get_pawn() is not None:
-            raise Exception("Node is occupied")
+            return "Node is occupied"
+            #raise Exception("Node is occupied")
         if player != "" and current_state.get_pawn().get_controller() != player:
-            raise Exception("That is not your pawn !")
+            #raise Exception("That is not your pawn !")
+            return "That is not your pawn !"
         if next_state.get_name() not in legal_edge:
-            raise Exception("You cannot move your pawn to that tile")
+            return "You cannot move your pawn to that tile"
+            #raise Exception("You cannot move your pawn to that tile")
         temp = current_state.get_pawn()
         temp.set_coordinate(next_state.get_name())
         current_state.remove_pawn()
         next_state.set_pawn(temp)
+        return "Good!"
 
     def get_node_list(self):
         """Return list of node"""
@@ -672,7 +694,7 @@ class AI(Player):
         print("Next tile :", next_tile)
         return current_tile, next_tile
 
-
+"""
 def main():
     board = Board()
     human = Human()
@@ -706,23 +728,23 @@ def main():
         if now == "AI":
             # current_tile = int(pawn[int(math.floor(random.random() * len(pawn)))].get_coordinate())
 
-            """
+
             print("Test Minimax :")
             now_time = time.time()
             current_tile, next_tile = ai.test_minimax(board, 6)
             after_time = time.time()
             print(after_time - now_time)
             print()
-            """
 
-            # """
+
+
             print("Test Alpha Beta Pruning :")
             now_time = time.time()
             current_tile, next_tile = ai.test_alpha_beta_pruning(board, 5)
             after_time = time.time()
             print(after_time - now_time)
             print()
-            # """
+
 
             print("Choose your tile to move :\n {}".format(current_tile))
         else:
@@ -749,6 +771,4 @@ def main():
     else:
         winner = "Human"
     print("{} is a winner !".format(winner))
-
-
-main()
+    """

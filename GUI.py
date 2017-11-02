@@ -1,6 +1,10 @@
 import pygame, itertools,sys, random
 import os
 from pygame.locals import *
+import Catur_Jawa as cj
+import copy
+import random
+import time
 
 BOARDWIDTH = 3  # number of columns in the board
 BOARDHEIGHT = 3 # number of rows in the board
@@ -18,38 +22,38 @@ PINK_PION = pygame.image.load(os.path.join("images","pink.png"))
 YELLOW_SPOT = pygame.image.load(os.path.join("images","yellow_spot.png"))
 PURPLE_SPOT = pygame.image.load(os.path.join("images","purple_spot.png"))
 
-class Pion():
-	def __init__(self, x, y,color):
-		self.x = x
-		self.y = y
-		self.color = color
-
-	def setColor(self):
-		if(self.color == "blue"):
-			self.pion = BLUE_PION
-		elif(self.color == "pink"):
-			self.pion = PINK_PION
-
-class Board():
+class BoardGUI:
 	turn = 1
-	def __init__(self):
-		os.environ['SDL_VIDEO_CENTERED'] = '1'
-		self.surface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+	def __init__(self,surface):
 		self.game_over = False
+		self.surface = surface
 		self.surface.blit(BGCOLOR,(0,0))
 		self.surface.blit(pygame.transform.scale(BOARD,(WINDOWHEIGHT-50,WINDOWHEIGHT-50)),(250,25))
-		self.clicked = 0
 		self.comeFrom = None
-		self.board = [['p','p','p'],['e','e','e'],['b','b','b']]
+		self.Aboard = cj.Board()
+		self.board = ""
+		self.human = cj.Human()
+		self.ai = cj.AI()
 		self.setup()
 
+	def getHuman(self):
+		return self.human
+
+	def getAI(self):
+		return self.ai
+
+	def getAboard(self):
+		return self.Aboard
+
 	def setup(self):
+		self.Aboard.assign_pawn_to_board(self.human, self.ai)
+		self.Aboard.set_player({'Human': self.human, 'AI': self.ai})
 		pygame.display.set_caption('Catur Jawa by Tanpa Nama')
+		self.board = self.Aboard.display_matrix()
 		self.draw()
 
-	def draw(self,highlightSquares=[(1,1)]):
+	def draw(self,highlightSquares=[]):
 		#draw blank board
-		print(self.board)
 		boardSize = len(self.board)
 		current_square = 0
 		for r in range(boardSize):
@@ -61,6 +65,8 @@ class Board():
 
 			current_square = (current_square+1)%2
 
+		print(highlightSquares)
+
 		for square in highlightSquares:
 			(screenX,screenY) = self.ConvertToScreenCoords(square)
 			self.surface.blit(pygame.transform.scale(PURPLE_SPOT,(50,50)),(screenX,screenY))
@@ -68,36 +74,63 @@ class Board():
 		for r in range(boardSize):
 			for c in range(boardSize):
 				(screenX,screenY) = self.ConvertToScreenCoords((r,c))
-				if(self.board[r][c] == 'p'):
+				if(self.board[r][c] == 'Human'):
 					self.surface.blit(pygame.transform.scale(PINK_PION,(50,50)),(screenX,screenY))
-				elif(self.board[r][c] == 'b'):
+				elif(self.board[r][c] == 'AI'):
 					self.surface.blit(pygame.transform.scale(BLUE_PION,(50,50)),(screenX,screenY))
-
-	def getPlayerInput(self,Clicked):
-		squareClicked = self.ConvertToChessCoords(Clicked)
-		(X,Y) = squareClicked
-		print(self.clicked)
-		
-		if(self.clicked == 0):
-			self.comeFrom = squareClicked
-			self.clicked = 1
-			print(self.board)
-		elif(self.clicked == 1 and (self.board[X][Y] is 'p' or self.board[X][Y] is 'b')):
-			self.comeFrom = None
-			self.clicked = 0
-			print(self.board)
-		elif(self.clicked == 1 and (self.board[X][Y] is 'e')):
-			self.movePion(self.comeFrom,squareClicked)
-			self.clicked = 0
-
-	def movePion(self,fromSquare,toSquare):
-		(XFrom,YFrom) = fromSquare
-		(XTo,YTo) = toSquare
-
-		self.board[XTo][YTo] = self.board[XFrom][YFrom]
-		self.board[XFrom][YFrom] = 'e'
 		print(self.board)
-		self.draw()
+		print("cekin")
+
+		pygame.display.flip()
+
+	def convertMatrixToNode(self, node):
+		(X,Y) = node
+		if(X == 0 and Y == 0):
+			return 6
+		elif(X == 1 and Y == 0):
+			return 7
+		elif(X == 2 and Y == 0):
+			return 0
+		elif(X == 0 and Y == 1):
+			return 5
+		elif(X == 1 and Y == 1):
+			return 8
+		elif(X == 2 and Y == 1):
+			return 1
+		elif(X == 0 and Y == 2):
+			return 4
+		elif(X == 1 and Y == 2):
+			return 3
+		elif(X == 2 and Y == 2):
+			return 2
+
+	def checkValidMove(self,possible_move):
+		print(possible_move)
+		isValid= []
+		for i in possible_move:
+			isValid.append(i)
+		print(isValid)
+		self.draw(isValid)
+
+	def fromNodeToMatrix(self, node):
+		if(node == 0):
+			return (2,0)
+		elif(node == 1):
+			return (2,1)
+		elif(node == 2):
+			return (2,2)
+		elif(node == 3):
+			return (1,2)
+		elif(node == 4):
+			return (0,2)
+		elif(node == 5):
+			return (0,1)
+		elif(node == 6):
+			return (0,0)
+		elif(node == 7):
+			return (1,0)
+		elif(node == 8):
+			return (1,1)
 
 	def ConvertToScreenCoords(self,chessSquareTuple):
 		#converts a (row,col) chessSquare into the pixel location of the upper-left corner of the square
@@ -115,24 +148,104 @@ class Board():
 		col = int((X-300) / 220)
 		return (row,col)
 
-if __name__ == '__main__':
+	def move_by_mouse(self):
+		clock = pygame.time.Clock()
+		while True:
+			for event in pygame.event.get():
+				if(event.type == QUIT):
+					pygame.quit()
+					sys.exit()
+				elif(event.type == MOUSEBUTTONUP):
+					(mouseX,mouseY) = pygame.mouse.get_pos()
+					matrixNode = self.ConvertToChessCoords((mouseX,mouseY))
+					node = self.convertMatrixToNode(matrixNode)
+					return node
+			clock.tick(30)
+
+def main() :
+	os.environ['SDL_VIDEO_CENTERED'] = '1'
 	pygame.init()
-	clock = pygame.time.Clock()
-	board = Board()
+	surface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+	gui = BoardGUI(surface)
+	first_turn = "Human"
+	if random.random() > 0.5:
+		first_turn = "AI"
+	if first_turn == "Human":
+		turn = ["Human", "AI"]
+	else:
+		turn = ["AI", "Human"]
 
-	while True:
-		for event in pygame.event.get():
-			if event.type == QUIT:
-				pygame.quit()
-				sys.exit()
-			elif event.type == MOUSEBUTTONUP:
-				(mouseX,mouseY) = pygame.mouse.get_pos()
-				board.getPlayerInput((mouseX,mouseY))
-		pygame.display.update()
-		clock.tick(30)
+	now = turn[0]
+	while not gui.getAboard().win_cond():
+		gui.getAboard().set_turn(now)
+		print("Now is {} turn\n".format(now))
+		gui.getAboard().display_matrix()
+		gui.draw()
+		if now == "Human":
+			pawn = gui.getAboard().moveable_pawn(gui.getHuman())
+		else:
+			pawn = gui.getAboard().moveable_pawn(gui.getAI())
 
-	
+		if now == "AI":
+			# current_tile = int(pawn[int(math.floor(random.random() * len(pawn)))].get_coordinate())
 
+			"""
+			print("Test Minimax :")
+			now_time = time.time()
+			current_tile, next_tile = ai.test_minimax(board, 6)
+			after_time = time.time()
+			print(after_time - now_time)
+			print()
+            """
 
+			# """
+			print("Test Alpha Beta Pruning :")
+			now_time = time.time()
+			current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), 5)
+			after_time = time.time()
+			print(after_time - now_time)
+			print()
+			# """
+		else:
+			current_tile = gui.move_by_mouse()
+			print("Choose your tile to move :\n {}".format(current_tile))
 
+		notNone = gui.getAboard().checkEmptyNode(int(current_tile), now)
+		if(notNone == "Good!"):
+			print("cek")
+			possible_move = gui.getAboard().pawn_moves(gui.getAboard().select_node(int(current_tile)))
+			print("\nYou can move your pawn to node:\n {} \n".format(gui.getAboard().print_list(possible_move)))
+			print(possible_move)
 
+			list_possible_move_matrix = []
+			for i in possible_move:
+				i_inMatrix = gui.fromNodeToMatrix(int(i))
+				list_possible_move_matrix.append(i_inMatrix)
+			print(list_possible_move_matrix)
+			gui.checkValidMove(list_possible_move_matrix)
+
+			if now == "AI":
+				print("Choose your next tile :\n {}".format(next_tile))
+			else:
+				next_tile = gui.move_by_mouse()
+			transition = gui.getAboard().pawn_transition(gui.getAboard().select_node(int(current_tile)), gui.getAboard().select_node(int(next_tile)), now)
+			print(transition)
+
+			if now == "Human":
+				if(transition == "Good!"):
+					now = "AI"
+				else:
+					now = "Human"
+			else:
+				now = "Human"
+		else:
+			now = "Human"
+
+		print()
+	if now == "Human":
+		winner = "AI"
+	else:
+		winner = "Human"
+	print("{} is a winner !".format(winner))
+
+main()
