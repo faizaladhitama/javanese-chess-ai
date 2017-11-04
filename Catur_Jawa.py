@@ -608,7 +608,7 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_score = self.min_alpha_beta(board, limit - 1, best_move_score, beta)
+                move_score = self.min_alpha_beta(board, limit, best_move_score, beta)
                 if move_score > best_move_score:
                     best_move = move
                     best_move_score = move_score
@@ -619,7 +619,7 @@ class AI(Player):
                 best_score = best_move_score
                 current_node = node.get_name()
                 print()
-        return current_node, very_best_move
+        return best_score, current_node, very_best_move
 
     def min_alpha_beta(self, virtual_board, limit, alpha, beta):
         board = copy.deepcopy(virtual_board)
@@ -684,9 +684,27 @@ class AI(Player):
     def test_alpha_beta_pruning(self, board, limit):
         virtual_board = copy.deepcopy(board)
 
-        current_tile, next_tile = self.alpha_beta_pruning(virtual_board, limit)
-        print(self._test)
+        score, current_tile, next_tile = self.alpha_beta_pruning(virtual_board, limit)
 
+        print("Current tile :", current_tile)
+        print("Next tile :", next_tile)
+        return current_tile, next_tile
+
+    def test_iterative_deepning_alpha_beta_pruning(self, board, limits):
+        virtual_board = copy.deepcopy(board)
+
+        current_tile, next_tile = 0, 0
+        curently_best = float('-inf')
+        for limit in range(limits):
+            score_temp, current_temp, next_temp = self.alpha_beta_pruning(virtual_board, limit)
+            if score_temp == 1:
+                current_tile = current_temp
+                next_tile = next_temp
+                break
+            if score_temp > curently_best :
+                curently_best = score_temp
+                current_tile = current_temp
+                next_tile = next_temp
         print("Current tile :", current_tile)
         print("Next tile :", next_tile)
         return current_tile, next_tile
