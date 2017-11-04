@@ -523,7 +523,6 @@ class AI(Player):
                     current_node = node.get_name()
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
-            print("--Next Pawn--")
             if best_move_score > best_score:
                 very_best_move = best_move
                 best_score = best_move_score
@@ -548,9 +547,7 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_score = self.max_play(board, limit - 1)
-                if move_score < move_best_score:
-                    move_best_score = move_score
+                move_best_score = min(move_best_score,self.max_play(board, limit - 1))
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
         return move_best_score
@@ -565,7 +562,8 @@ class AI(Player):
             return 0
         pawns = board.moveable_pawn(board.get_player())
         temp_board = copy.deepcopy(board)
-        move_best_score = float('-inf')
+        infinity = float('inf')
+        move_best_score = -infinity
         for pawn in pawns:
             moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
             node = board.select_node(int(pawn.get_coordinate()))
@@ -573,9 +571,7 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_score = self.min_play(board, limit - 1)
-                if move_score > move_best_score:
-                    move_best_score = move_score
+                move_best_score = max(move_best_score,self.min_play(board, limit - 1))
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
         return move_best_score
@@ -593,9 +589,9 @@ class AI(Player):
     def alpha_beta_pruning(self, virtual_board, limit):
         board = copy.deepcopy(virtual_board)
         pawns = board.moveable_pawn(board.get_player())
-        best_score = float('-inf')
-        temp_board = copy.deepcopy(board)
         infinity = float('inf')
+        best_score = -infinity
+        temp_board = copy.deepcopy(board)
         current_node = 0
         very_best_move = 0
         for pawn in pawns:
@@ -618,7 +614,6 @@ class AI(Player):
                 very_best_move = best_move
                 best_score = best_move_score
                 current_node = node.get_name()
-                print()
         return best_score, current_node, very_best_move
 
     def min_alpha_beta(self, virtual_board, limit, alpha, beta):
@@ -631,7 +626,8 @@ class AI(Player):
             return 0
         pawns = board.moveable_pawn(board.get_player())
         temp_board = copy.deepcopy(board)
-        move_best_score = float('inf')
+        infinity = float('inf')
+        move_best_score = infinity
         for pawn in pawns:
             moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
             node = board.select_node(int(pawn.get_coordinate()))
@@ -640,9 +636,7 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_score = self.max_alpha_beta(board, limit - 1, alpha, beta)
-                if move_score < move_best_score:
-                    move_best_score = move_score
+                move_best_score = min(move_best_score,self.max_alpha_beta(board, limit - 1, alpha, beta))
                 if move_best_score <= alpha:
                     return move_best_score
                 beta = min(beta, move_best_score)
@@ -661,7 +655,8 @@ class AI(Player):
             return 0
         pawns = board.moveable_pawn(board.get_player())
         temp_board = copy.deepcopy(board)
-        move_best_score = float('-inf')
+        infinity = float('inf')
+        move_best_score = -infinity
         for pawn in pawns:
             moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
             node = board.select_node(int(pawn.get_coordinate()))
@@ -670,9 +665,7 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_score = self.min_alpha_beta(board, limit - 1, alpha, beta)
-                if move_score > move_best_score:
-                    move_best_score = move_score
+                move_best_score = max(move_best_score,self.min_alpha_beta(board, limit - 1, alpha, beta))
                 if move_best_score >= beta:
                     return move_best_score
                 alpha = max(alpha, move_best_score)
@@ -686,6 +679,7 @@ class AI(Player):
 
         score, current_tile, next_tile = self.alpha_beta_pruning(virtual_board, limit)
 
+        print()
         print("Current tile :", current_tile)
         print("Next tile :", next_tile)
         return current_tile, next_tile
@@ -694,7 +688,8 @@ class AI(Player):
         virtual_board = copy.deepcopy(board)
 
         current_tile, next_tile = 0, 0
-        curently_best = float('-inf')
+        infinity = float('inf')
+        curently_best = -infinity
         for limit in range(limits):
             score_temp, current_temp, next_temp = self.alpha_beta_pruning(virtual_board, limit)
             if score_temp == 1:
@@ -705,6 +700,7 @@ class AI(Player):
                 curently_best = score_temp
                 current_tile = current_temp
                 next_tile = next_temp
+        print()
         print("Current tile :", current_tile)
         print("Next tile :", next_tile)
         return current_tile, next_tile
