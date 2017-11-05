@@ -15,15 +15,17 @@ WINDOWHEIGHT = 640
 
 # XMARGIN = int((WINDOWWIDTH - (TILESIZE * BOARDWIDTH + (BOARDWIDTH - 1))) / 2)
 # YMARGIN = int((WINDOWHEIGHT - (TILESIZE * BOARDHEIGHT + (BOARDHEIGHT - 1))) / 2)
-BGCOLOR = pygame.image.load(os.path.join("images", "bg.jpg"))
+BGCOLOR = pygame.image.load(os.path.join("images", "bg.png"))
 BOARD = pygame.image.load(os.path.join("images", "board.png"))
 
 BLUE_PION = pygame.image.load(os.path.join("images", "blue.png"))
 PINK_PION = pygame.image.load(os.path.join("images", "pink.png"))
 YELLOW_SPOT = pygame.image.load(os.path.join("images", "yellow_spot.png"))
-PURPLE_SPOT = pygame.image.load(os.path.join("images", "purple_spot.png"))
+GREEN_SPOT = pygame.image.load(os.path.join("images", "green_spot.png"))
 WIN = pygame.image.load(os.path.join("images", "You_Win.png"))
 LOSE = pygame.image.load(os.path.join("images", "You_Lose.png"))
+YOUR_TURN = pygame.image.load(os.path.join("images", "your_turn.png"))
+AI_TURN = pygame.image.load(os.path.join("images", "ai_turn.png"))
 
 
 class BoardGUI:
@@ -74,7 +76,7 @@ class BoardGUI:
 
         for square in highlightSquares:
             (screenX, screenY) = self.ConvertToScreenCoords(square)
-            self.surface.blit(pygame.transform.scale(PURPLE_SPOT, (50, 50)), (screenX, screenY))
+            self.surface.blit(pygame.transform.scale(GREEN_SPOT, (50, 50)), (screenX, screenY))
 
         for r in range(boardSize):
             for c in range(boardSize):
@@ -169,6 +171,7 @@ class BoardGUI:
 
 
 def main():
+    winner = ""
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pygame.init()
     surface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
@@ -186,6 +189,13 @@ def main():
         gui.getAboard().set_turn(now)
         print("Now is {} turn\n".format(now))
         gui.getAboard().display_matrix()
+        gui.draw()
+        if(winner == ""):
+            if(now == "Human"):
+                print("cek HU")
+                surface.blit(pygame.transform.scale(YOUR_TURN, (296, 96)), (0, 0))
+            elif(now == "AI"):
+                surface.blit(pygame.transform.scale(AI_TURN, (296, 96)), (0, 0))
         gui.draw()
         if now == "Human":
             pawn = gui.getAboard().moveable_pawn(gui.getHuman())
@@ -256,7 +266,6 @@ def main():
                 now = "Human"
         else:
             now = "Human"
-
         print()
     gui.getAboard().display_matrix()
     gui.draw()
