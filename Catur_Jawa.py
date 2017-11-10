@@ -1,4 +1,5 @@
 import copy
+import random
 
 """
 Catur Jawa Gameplay
@@ -534,6 +535,7 @@ class AI(Player):
         board.next_turn()
         if board.win_cond():
             eval_num = board.win_cond(True)
+            print(eval_num)
             return eval_num
         if limit <= 0:
             return 0
@@ -547,7 +549,7 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_best_score = min(move_best_score,self.max_play(board, limit - 1))
+                move_best_score = min(move_best_score, self.max_play(board, limit - 1))
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
         return move_best_score
@@ -571,7 +573,7 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_best_score = max(move_best_score,self.min_play(board, limit - 1))
+                move_best_score = max(move_best_score, self.min_play(board, limit - 1))
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
         return move_best_score
@@ -594,6 +596,7 @@ class AI(Player):
         temp_board = copy.deepcopy(board)
         current_node = 0
         very_best_move = 0
+        best_move_each_pawn = dict()
         for pawn in pawns:
             moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
             best_move = moves[0]
@@ -614,6 +617,23 @@ class AI(Player):
                 very_best_move = best_move
                 best_score = best_move_score
                 current_node = node.get_name()
+                best_move_each_pawn = dict()
+                best_move_each_pawn[current_node] = best_move
+            elif best_move_score == best_score:
+                current_node = node.get_name()
+                best_move_each_pawn[current_node] = best_move
+        print("Pawn moves :", best_move_each_pawn)
+        if len(best_move_each_pawn) > 0:
+            current_node, very_best_move = random.choice(list(best_move_each_pawn.items()))
+            print("Best score :",best_score)
+            print("Random move :", current_node, very_best_move)
+            board = copy.deepcopy(virtual_board)
+            board.pawn_transition(board.select_node(int(current_node)),board.select_node(int(very_best_move)))
+            print("Result :",self.min_play(board,0))
+        else:
+            board = copy.deepcopy(virtual_board)
+            board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move)))
+            print("Result :", self.min_play(board, 0))
         return best_score, current_node, very_best_move
 
     def min_alpha_beta(self, virtual_board, limit, alpha, beta):
@@ -636,7 +656,7 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_best_score = min(move_best_score,self.max_alpha_beta(board, limit - 1, alpha, beta))
+                move_best_score = min(move_best_score, self.max_alpha_beta(board, limit - 1, alpha, beta))
                 if move_best_score <= alpha:
                     return move_best_score
                 beta = min(beta, move_best_score)
@@ -665,13 +685,14 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_best_score = max(move_best_score,self.min_alpha_beta(board, limit - 1, alpha, beta))
+                move_best_score = max(move_best_score, self.min_alpha_beta(board, limit - 1, alpha, beta))
                 if move_best_score >= beta:
                     return move_best_score
                 alpha = max(alpha, move_best_score)
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
             alpha = temp_alpha
+
         return move_best_score
 
     def test_alpha_beta_pruning(self, board, limit):
@@ -696,7 +717,7 @@ class AI(Player):
                 current_tile = current_temp
                 next_tile = next_temp
                 break
-            if score_temp > curently_best :
+            if score_temp > curently_best:
                 curently_best = score_temp
                 current_tile = current_temp
                 next_tile = next_temp

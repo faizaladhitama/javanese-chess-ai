@@ -190,11 +190,11 @@ def main():
         print("Now is {} turn\n".format(now))
         gui.getAboard().display_matrix()
         gui.draw()
-        if(winner == ""):
-            if(now == "Human"):
+        if (winner == ""):
+            if (now == "Human"):
                 print("cek HU")
                 surface.blit(pygame.transform.scale(YOUR_TURN, (296, 96)), (0, 0))
-            elif(now == "AI"):
+            elif (now == "AI"):
                 surface.blit(pygame.transform.scale(AI_TURN, (296, 96)), (0, 0))
         gui.draw()
         if now == "Human":
@@ -214,23 +214,24 @@ def main():
             print()
             """
 
-            """
+            # """
             print("Test Alpha Beta Pruning :")
             now_time = time.time()
-            current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), 8)
+            current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), 6)
+            after_time = time.time()
+            print(after_time - now_time)
+            print()
+            # """
+
+            """
+            print("Test Iterative Deepning Alpha Beta Pruning :")
+            now_time = time.time()
+            current_tile, next_tile = gui.getAI().test_iterative_deepning_alpha_beta_pruning(gui.getAboard(), 6)
             after_time = time.time()
             print(after_time - now_time)
             print()
             """
 
-            # """
-            print("Test Iterative Deepning Alpha Beta Pruning :")
-            now_time = time.time()
-            current_tile, next_tile = gui.getAI().test_iterative_deepning_alpha_beta_pruning(gui.getAboard(), 8)
-            after_time = time.time()
-            print(after_time - now_time)
-            print()
-            # """
         else:
             current_tile = gui.move_by_mouse()
             print("Choose your tile to move :\n {}".format(current_tile))
