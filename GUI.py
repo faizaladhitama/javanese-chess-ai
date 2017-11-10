@@ -217,7 +217,7 @@ def main():
             # """
             print("Test Alpha Beta Pruning :")
             now_time = time.time()
-            current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), 6)
+            current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), 4)
             after_time = time.time()
             print(after_time - now_time)
             print()

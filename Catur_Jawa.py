@@ -281,8 +281,11 @@ class Board:
         """Return integer for utility and bool for check win"""
         if isUtility == True:
             row = self.check_row(True)
+            print("Check row :", row)
             column = self.check_column(True)
+            print("Check column :", column)
             diagonal = self.check_diagonal(True)
+            print("Check diagonal :", diagonal)
             if row[0]:
                 return self.controller_checker(row[1])
             elif column[0]:
@@ -326,8 +329,12 @@ class Board:
                     continue
                 controller_temp = temp_node.get_controller()
                 check_all_same = self.all_same_one_line(j, controller_temp, isUtility)
-                if check_all_same != False:
-                    return check_all_same
+                if isUtility:
+                    if check_all_same[0] != False:
+                        return check_all_same
+                else:
+                    if check_all_same != False:
+                        return check_all_same
 
         if isUtility:
             return [False]
@@ -348,7 +355,6 @@ class Board:
         bottom_right_upper_left = [2, 6, 8]
 
         diagonal = [bottom_left_upper_right, bottom_right_upper_left]
-
         return self.line_loop(diagonal, isUtility)
 
     def line_loop(self, lines, isUtility):
@@ -361,8 +367,12 @@ class Board:
             controller_temp = temp_node.get_controller()
 
             check_all_same = self.all_same_one_line(i, controller_temp, isUtility)
-            if check_all_same != False:
-                return check_all_same
+            if isUtility:
+                if check_all_same[0] != False:
+                    return check_all_same
+            else:
+                if check_all_same != False:
+                    return check_all_same
 
         if isUtility:
             return [False]
@@ -535,7 +545,6 @@ class AI(Player):
         board.next_turn()
         if board.win_cond():
             eval_num = board.win_cond(True)
-            print(eval_num)
             return eval_num
         if limit <= 0:
             return 0
@@ -548,10 +557,17 @@ class AI(Player):
             for move in moves:
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
+                print("Next :", next_node)
+                print("Current :", temp_node)
                 board.pawn_transition(temp_node, next_node)
                 move_best_score = min(move_best_score, self.max_play(board, limit - 1))
+                print(move_best_score)
+                board.display_matrix()
+                print("Win or not :", board.win_cond())
+                print("Util :", board.win_cond(True))
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
+            print("Score :", move_best_score)
         return move_best_score
 
     def max_play(self, virtual_board, limit):
@@ -623,17 +639,23 @@ class AI(Player):
                 current_node = node.get_name()
                 best_move_each_pawn[current_node] = best_move
         print("Pawn moves :", best_move_each_pawn)
-        if len(best_move_each_pawn) > 0:
+        if len(best_move_each_pawn) > 1:
             current_node, very_best_move = random.choice(list(best_move_each_pawn.items()))
-            print("Best score :",best_score)
+            print("Best score :", best_score)
             print("Random move :", current_node, very_best_move)
             board = copy.deepcopy(virtual_board)
-            board.pawn_transition(board.select_node(int(current_node)),board.select_node(int(very_best_move)))
-            print("Result :",self.min_play(board,0))
+            print(board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move))))
+            while (self.min_play(board, 3) == -1 and len(best_move_each_pawn) > 1):
+                best_move_each_pawn.pop(current_node)
+                current_node, very_best_move = random.choice(list(best_move_each_pawn.items()))
+                board = copy.deepcopy(virtual_board)
+                board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move)))
+                if len(best_move_each_pawn) > 1:
+                    print("Re-Prediction")
         else:
             board = copy.deepcopy(virtual_board)
-            board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move)))
-            print("Result :", self.min_play(board, 0))
+            print(board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move))))
+            print("Result :", self.min_play(board, 3))
         return best_score, current_node, very_best_move
 
     def min_alpha_beta(self, virtual_board, limit, alpha, beta):
@@ -692,7 +714,6 @@ class AI(Player):
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
             alpha = temp_alpha
-
         return move_best_score
 
     def test_alpha_beta_pruning(self, board, limit):
