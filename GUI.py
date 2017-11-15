@@ -92,24 +92,33 @@ class BoardGUI:
 
     def convertMatrixToNode(self, node):
         (X, Y) = node
+        for i in range(3):
+            for j in range(3):
+                print(i, j)
+                if X == i and Y == j:
+                    print("masuk")
+                    return (6 - (i * 3)) + j
+
+        """
         if X == 0 and Y == 0:
             return 6
         elif X == 1 and Y == 0:
-            return 7
+            return 3
         elif X == 2 and Y == 0:
             return 0
         elif X == 0 and Y == 1:
-            return 5
+            return 7
         elif X == 1 and Y == 1:
-            return 8
+            return 4
         elif X == 2 and Y == 1:
             return 1
         elif X == 0 and Y == 2:
-            return 4
+            return 8
         elif X == 1 and Y == 2:
-            return 3
+            return 5
         elif X == 2 and Y == 2:
             return 2
+        """
 
     def checkValidMove(self, possible_move):
         print(possible_move)
@@ -120,6 +129,10 @@ class BoardGUI:
         self.draw(isValid)
 
     def fromNodeToMatrix(self, node):
+        for i in range(9):
+            if i == node:
+                return (2 - int(i / 3), i % 3)
+        """
         if (node == 0):
             return (2, 0)
         elif (node == 1):
@@ -127,17 +140,18 @@ class BoardGUI:
         elif (node == 2):
             return (2, 2)
         elif (node == 3):
-            return (1, 2)
+            return (1, 0)
         elif (node == 4):
-            return (0, 2)
+            return (1, 1)
         elif (node == 5):
-            return (0, 1)
+            return (1, 2)
         elif (node == 6):
             return (0, 0)
         elif (node == 7):
-            return (1, 0)
+            return (0, 1)
         elif (node == 8):
-            return (1, 1)
+            return (0, 2)
+        """
 
     def ConvertToScreenCoords(self, chessSquareTuple):
         # converts a (row,col) chessSquare into the pixel location of the upper-left corner of the square
@@ -164,8 +178,11 @@ class BoardGUI:
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONUP:
                     (mouseX, mouseY) = pygame.mouse.get_pos()
+                    print(mouseX, mouseY)
                     matrixNode = self.ConvertToChessCoords((mouseX, mouseY))
+                    print("Matrix node :", matrixNode)
                     node = self.convertMatrixToNode(matrixNode)
+                    print("Node :", node)
                     return node
             clock.tick(30)
 
@@ -199,6 +216,7 @@ def main():
         gui.draw()
         if now == "Human":
             pawn = gui.getAboard().moveable_pawn(gui.getHuman())
+            print("\nYour moveable pawns are on node :\n {} \n".format(gui.getAboard().print_list(pawn, True)))
         else:
             pawn = gui.getAboard().moveable_pawn(gui.getAI())
 
