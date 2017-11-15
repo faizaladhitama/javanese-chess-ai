@@ -192,7 +192,9 @@ class Board:
 
     """
     def generate_board(self):
-        ""\"Create list of node and edge, append nodes to edges\"""
+        """
+        #Create list of node and edge, append nodes to edges
+        """
         temp = Node("0")
         created = ""
         start = temp
