@@ -113,8 +113,86 @@ class Board:
         else:
             return "Good!"
 
+    def generate_node(self):
+        for i in range(0, 9):
+            node = Node(str(i))
+            self._node_list.append(node)
+
+    def generate_row(self, edge_name):
+        for i in range(0, 3):
+            for j in range(0, 2):
+                edge_int = ord(edge_name)
+                current = i * 3 + j
+                next = i * 3 + j + 1
+                current_node = self.get_node_list()[current]
+                next_node = self.get_node_list()[next]
+                edge = Edge(current_node, next_node, edge_name)
+                current_node.add_connection(edge)
+                next_node.add_connection(edge)
+                self._edge_list.append(edge)
+                edge_int += 1
+                edge_name = chr(edge_int)
+        return edge_name
+
+    def generate_collumn(self, edge_name):
+        for i in range(0, 3):
+            for j in range(0, 2):
+                edge_int = ord(edge_name)
+                current = i + j * 3
+                next = i + j * 3 + 3
+                current_node = self.get_node_list()[current]
+                next_node = self.get_node_list()[next]
+                edge = Edge(current_node, next_node, edge_name)
+                current_node.add_connection(edge)
+                next_node.add_connection(edge)
+                self._edge_list.append(edge)
+                edge_int += 1
+                edge_name = chr(edge_int)
+        return edge_name
+
+    def generate_diagonal(self, edge_name):
+        for i in range(0, 2):
+            edge_int = ord(edge_name)
+            current = i * 4
+            next = i * 4 + 4
+            current_node = self.get_node_list()[current]
+            next_node = self.get_node_list()[next]
+            edge = Edge(current_node, next_node, edge_name)
+            current_node.add_connection(edge)
+            next_node.add_connection(edge)
+            self._edge_list.append(edge)
+            edge_int += 1
+            edge_name = chr(edge_int)
+        for i in range(0, 2):
+            edge_int = ord(edge_name)
+            current = i * 2 + 2
+            next = i * 2 + 4
+            current_node = self.get_node_list()[current]
+            next_node = self.get_node_list()[next]
+            edge = Edge(current_node, next_node, edge_name)
+            current_node.add_connection(edge)
+            next_node.add_connection(edge)
+            self._edge_list.append(edge)
+            edge_int += 1
+            edge_name = chr(edge_int)
+        return edge_name
+
     def generate_board(self):
-        """Create list of node and edge, append nodes to edges"""
+        self.generate_node()
+        edge_name = 'a'
+        edge_name = self.generate_row(edge_name)
+        edge_name = self.generate_collumn(edge_name)
+        self.generate_diagonal(edge_name)
+        for i in self.get_node_list():
+            print(i, ":", i.get_connected_to())
+        print()
+        for i in self.get_edge_list():
+            print(i, ":", i.get_connection())
+        pass
+
+    """
+    def generate_board(self):
+        ""\"Create list of node and edge, append nodes to edges\"""
         temp = Node("0")
         created = ""
         start = temp
@@ -145,6 +223,7 @@ class Board:
             center_node.add_connection(edge)
             self._node_list[i].add_connection(edge)
             self._edge_list.append(edge)
+    """
 
     def set_turn(self, turn):
         self._turn = turn
@@ -175,17 +254,17 @@ class Board:
                 elif num == 2:
                     self._matrix[2][2] = 0
                 elif num == 3:
-                    self._matrix[1][2] = 0
+                    self._matrix[1][0] = 0
                 elif num == 4:
-                    self._matrix[0][2] = 0
+                    self._matrix[1][1] = 0
                 elif num == 5:
-                    self._matrix[0][1] = 0
+                    self._matrix[1][2] = 0
                 elif num == 6:
                     self._matrix[0][0] = 0
                 elif num == 7:
-                    self._matrix[1][0] = 0
+                    self._matrix[0][1] = 0
                 elif num == 8:
-                    self._matrix[1][1] = 0
+                    self._matrix[0][2] = 0
             else:
                 tile_name = i.get_pawn().get_controller()
                 num = int(i.get_name())
@@ -196,17 +275,17 @@ class Board:
                 elif num == 2:
                     self._matrix[2][2] = tile_name
                 elif num == 3:
-                    self._matrix[1][2] = tile_name
+                    self._matrix[1][0] = tile_name
                 elif num == 4:
-                    self._matrix[0][2] = tile_name
+                    self._matrix[1][1] = tile_name
                 elif num == 5:
-                    self._matrix[0][1] = tile_name
+                    self._matrix[1][2] = tile_name
                 elif num == 6:
                     self._matrix[0][0] = tile_name
                 elif num == 7:
-                    self._matrix[1][0] = tile_name
+                    self._matrix[0][1] = tile_name
                 elif num == 8:
-                    self._matrix[1][1] = tile_name
+                    self._matrix[0][2] = tile_name
 
         for i in self._matrix:
             print(i)
@@ -218,9 +297,9 @@ class Board:
         n = 0
         for i in range(len(player1.get_pawn())):
             player1.get_pawn()[n].set_coordinate(n)
-            player2.get_pawn()[n].set_coordinate(n + 4)
+            player2.get_pawn()[n].set_coordinate(n + 6)
             self._node_list[n].set_pawn(player1.get_pawn()[n])
-            self._node_list[n + 4].set_pawn(player2.get_pawn()[n])
+            self._node_list[n + 6].set_pawn(player2.get_pawn()[n])
             n += 1
 
     def select_node(self, number):
@@ -312,8 +391,8 @@ class Board:
     def check_row(self, isUtility=False):
         """Return True if game ended with row win"""
         first = [0, 1, 2]
-        second = [7, 8, 3]
-        third = [6, 5, 4]
+        second = [3, 4, 5]
+        third = [6, 7, 8]
 
         row = [first, second, third]
 
@@ -342,9 +421,9 @@ class Board:
 
     def check_column(self, isUtility=False):
         """Return True if game ended with column win"""
-        first = [0, 6, 7]
-        second = [1, 5, 8]
-        third = [2, 3, 4]
+        first = [0, 3, 6]
+        second = [1, 4, 7]
+        third = [2, 5, 8]
 
         column = [first, second, third]
         return self.line_loop(column, isUtility)
@@ -352,7 +431,7 @@ class Board:
     def check_diagonal(self, isUtility=False):
         """Return True if game ended with diagonal win"""
         bottom_left_upper_right = [0, 4, 8]
-        bottom_right_upper_left = [2, 6, 8]
+        bottom_right_upper_left = [2, 4, 6]
 
         diagonal = [bottom_left_upper_right, bottom_right_upper_left]
         return self.line_loop(diagonal, isUtility)
@@ -394,7 +473,7 @@ class Board:
     def initial_state(self, player):
         """Return True if pawns in initial state"""
         human_player = [0, 1, 2]
-        ai_player = [4, 5, 6]
+        ai_player = [6, 7, 8]
 
         rng = human_player
         if player == "AI":
