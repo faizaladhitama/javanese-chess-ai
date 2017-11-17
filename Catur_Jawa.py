@@ -252,205 +252,227 @@ class Board:
         self._edge_list.append(edge)
 """
 
+    def set_turn(self, turn):
+        self._turn = turn
 
-def set_turn(self, turn):
-    self._turn = turn
-
-
-def next_turn(self):
-    if self._turn == "Human":
-        self._turn = "AI"
-    else:
-        self._turn = "Human"
-
-
-def set_player(self, player_dict):
-    self._player = player_dict
-
-
-def get_player(self):
-    if self._turn == "Human":
-        return self._player['Human']
-    return self._player['AI']
-
-
-def display_matrix(self):
-    """Print matrix representation"""
-    for i in self.get_node_list():
-        if i.get_pawn() is None:
-            num = int(i.get_name())
-            if num == 0:
-                self._matrix[2][0] = 0
-            elif num == 1:
-                self._matrix[2][1] = 0
-            elif num == 2:
-                self._matrix[2][2] = 0
-            elif num == 3:
-                self._matrix[1][0] = 0
-            elif num == 4:
-                self._matrix[1][1] = 0
-            elif num == 5:
-                self._matrix[1][2] = 0
-            elif num == 6:
-                self._matrix[0][0] = 0
-            elif num == 7:
-                self._matrix[0][1] = 0
-            elif num == 8:
-                self._matrix[0][2] = 0
+    def next_turn(self):
+        if self._turn == "Human":
+            self._turn = "AI"
         else:
-            tile_name = i.get_pawn().get_controller()
-            num = int(i.get_name())
-            if num == 0:
-                self._matrix[2][0] = tile_name
-            elif num == 1:
-                self._matrix[2][1] = tile_name
-            elif num == 2:
-                self._matrix[2][2] = tile_name
-            elif num == 3:
-                self._matrix[1][0] = tile_name
-            elif num == 4:
-                self._matrix[1][1] = tile_name
-            elif num == 5:
-                self._matrix[1][2] = tile_name
-            elif num == 6:
-                self._matrix[0][0] = tile_name
-            elif num == 7:
-                self._matrix[0][1] = tile_name
-            elif num == 8:
-                self._matrix[0][2] = tile_name
+            self._turn = "Human"
 
-    for i in self._matrix:
-        print(i)
+    def set_player(self, player_dict):
+        self._player = player_dict
 
-    return self._matrix
+    def get_player(self):
+        if self._turn == "Human":
+            return self._player['Human']
+        return self._player['AI']
 
+    def display_matrix(self):
+        """Print matrix representation"""
+        for i in self.get_node_list():
+            if i.get_pawn() is None:
+                num = int(i.get_name())
+                if num == 0:
+                    self._matrix[2][0] = 0
+                elif num == 1:
+                    self._matrix[2][1] = 0
+                elif num == 2:
+                    self._matrix[2][2] = 0
+                elif num == 3:
+                    self._matrix[1][0] = 0
+                elif num == 4:
+                    self._matrix[1][1] = 0
+                elif num == 5:
+                    self._matrix[1][2] = 0
+                elif num == 6:
+                    self._matrix[0][0] = 0
+                elif num == 7:
+                    self._matrix[0][1] = 0
+                elif num == 8:
+                    self._matrix[0][2] = 0
+            else:
+                tile_name = i.get_pawn().get_controller()
+                num = int(i.get_name())
+                if num == 0:
+                    self._matrix[2][0] = tile_name
+                elif num == 1:
+                    self._matrix[2][1] = tile_name
+                elif num == 2:
+                    self._matrix[2][2] = tile_name
+                elif num == 3:
+                    self._matrix[1][0] = tile_name
+                elif num == 4:
+                    self._matrix[1][1] = tile_name
+                elif num == 5:
+                    self._matrix[1][2] = tile_name
+                elif num == 6:
+                    self._matrix[0][0] = tile_name
+                elif num == 7:
+                    self._matrix[0][1] = tile_name
+                elif num == 8:
+                    self._matrix[0][2] = tile_name
 
-def assign_pawn_to_board(self, player1, player2):
-    """Add pawn to node"""
-    n = 0
-    for i in range(len(player1.get_pawn())):
-        player1.get_pawn()[n].set_coordinate(n)
-        player2.get_pawn()[n].set_coordinate(n + 6)
-        self._node_list[n].set_pawn(player1.get_pawn()[n])
-        self._node_list[n + 6].set_pawn(player2.get_pawn()[n])
-        n += 1
+        for i in self._matrix:
+            print(i)
 
+        return self._matrix
 
-def select_node(self, number):
-    """Using number to return selected node from list of node index-number"""
-    return self.get_node_list()[number]
+    def assign_pawn_to_board(self, player1, player2):
+        """Add pawn to node"""
+        n = 0
+        for i in range(len(player1.get_pawn())):
+            player1.get_pawn()[n].set_coordinate(n)
+            player2.get_pawn()[n].set_coordinate(n + 6)
+            self._node_list[n].set_pawn(player1.get_pawn()[n])
+            self._node_list[n + 6].set_pawn(player2.get_pawn()[n])
+            n += 1
 
+    def select_node(self, number):
+        """Using number to return selected node from list of node index-number"""
+        return self.get_node_list()[number]
 
-def possible_move(self, node):
-    """Return array of node that can be placed with pawn"""
-    legal_edge = list()
-    connection = node.get_connected_to()
-    for i in connection:
-        if i.get_connection()[0].get_name() == node.get_name():
-            temp_node = i.get_connection()[1]
+    def possible_move(self, node):
+        """Return array of node that can be placed with pawn"""
+        legal_edge = list()
+        connection = node.get_connected_to()
+        for i in connection:
+            if i.get_connection()[0].get_name() == node.get_name():
+                temp_node = i.get_connection()[1]
+            else:
+                temp_node = i.get_connection()[0]
+            if temp_node.get_pawn() is None:
+                legal_edge.append(temp_node.get_name())
+        return legal_edge
+
+    def pawn_moves(self, node):
+        """Return array of nodes that can be placed with pawn"""
+        return self.possible_move(node)
+
+    def pawn_transition(self, current_state, next_state, player=""):
+        """Move player pawn from current node to next node"""
+        legal_edge = self.possible_move(current_state)
+        if current_state.get_pawn() is None:
+            return "That tile does not have any pawn"
+            # raise Exception("That tile does not have any pawn")
+        if next_state.get_pawn() is not None:
+            return "Node is occupied"
+            # raise Exception("Node is occupied")
+        if player != "" and current_state.get_pawn().get_controller() != player:
+            # raise Exception("That is not your pawn !")
+            return "That is not your pawn !"
+        if next_state.get_name() not in legal_edge:
+            return "You cannot move your pawn to that tile"
+            # raise Exception("You cannot move your pawn to that tile")
+        temp = current_state.get_pawn()
+        temp.set_coordinate(next_state.get_name())
+        current_state.remove_pawn()
+        next_state.set_pawn(temp)
+        return "Good!"
+
+    def get_node_list(self):
+        """Return list of node"""
+        return self._node_list
+
+    def get_edge_list(self):
+        """Return list of edge"""
+        return self._edge_list
+
+    def utility(self):
+        """Utility for AI"""
+        return self.win_cond(True)
+
+    def win_cond(self, isUtility=False):
+        """Return integer for utility and bool for check win"""
+        if isUtility == True:
+            row = self.check_row(True)
+            print("Check row :", row)
+            column = self.check_column(True)
+            print("Check column :", column)
+            diagonal = self.check_diagonal(True)
+            print("Check diagonal :", diagonal)
+            if row[0]:
+                return self.controller_checker(row[1])
+            elif column[0]:
+                return self.controller_checker(column[1])
+            elif diagonal[0]:
+                return self.controller_checker(diagonal[1])
+            return 0
         else:
-            temp_node = i.get_connection()[0]
-        if temp_node.get_pawn() is None:
-            legal_edge.append(temp_node.get_name())
-    return legal_edge
+            if self.check_row():
+                return True
+            elif self.check_column():
+                return True
+            elif self.check_diagonal():
+                return True
+            return False
 
+    def controller_checker(self, controller):
+        """Return -1 if human win and 1 if AI win"""
+        if controller == "Human":
+            return -1
+        else:
+            return 1
 
-def pawn_moves(self, node):
-    """Return array of nodes that can be placed with pawn"""
-    return self.possible_move(node)
+    def check_row(self, isUtility=False):
+        """Return True if game ended with row win"""
+        first = [0, 1, 2]
+        second = [3, 4, 5]
+        third = [6, 7, 8]
 
+        row = [first, second, third]
 
-def pawn_transition(self, current_state, next_state, player=""):
-    """Move player pawn from current node to next node"""
-    legal_edge = self.possible_move(current_state)
-    if current_state.get_pawn() is None:
-        return "That tile does not have any pawn"
-        # raise Exception("That tile does not have any pawn")
-    if next_state.get_pawn() is not None:
-        return "Node is occupied"
-        # raise Exception("Node is occupied")
-    if player != "" and current_state.get_pawn().get_controller() != player:
-        # raise Exception("That is not your pawn !")
-        return "That is not your pawn !"
-    if next_state.get_name() not in legal_edge:
-        return "You cannot move your pawn to that tile"
-        # raise Exception("You cannot move your pawn to that tile")
-    temp = current_state.get_pawn()
-    temp.set_coordinate(next_state.get_name())
-    current_state.remove_pawn()
-    next_state.set_pawn(temp)
-    return "Good!"
+        for i in range(len(row)):
+            j = row[i]
+            if i == 0 and self.initial_state("Human"):
+                continue
+            elif i == 2 and self.initial_state("AI"):
+                continue
+            else:
+                temp_node = self.get_node_list()[j[0]].get_pawn()
+                if temp_node is None:
+                    continue
+                controller_temp = temp_node.get_controller()
+                check_all_same = self.all_same_one_line(j, controller_temp, isUtility)
+                if isUtility:
+                    if check_all_same[0] != False:
+                        return check_all_same
+                else:
+                    if check_all_same != False:
+                        return check_all_same
 
-
-def get_node_list(self):
-    """Return list of node"""
-    return self._node_list
-
-
-def get_edge_list(self):
-    """Return list of edge"""
-    return self._edge_list
-
-
-def utility(self):
-    """Utility for AI"""
-    return self.win_cond(True)
-
-
-def win_cond(self, isUtility=False):
-    """Return integer for utility and bool for check win"""
-    if isUtility == True:
-        row = self.check_row(True)
-        print("Check row :", row)
-        column = self.check_column(True)
-        print("Check column :", column)
-        diagonal = self.check_diagonal(True)
-        print("Check diagonal :", diagonal)
-        if row[0]:
-            return self.controller_checker(row[1])
-        elif column[0]:
-            return self.controller_checker(column[1])
-        elif diagonal[0]:
-            return self.controller_checker(diagonal[1])
-        return 0
-    else:
-        if self.check_row():
-            return True
-        elif self.check_column():
-            return True
-        elif self.check_diagonal():
-            return True
+        if isUtility:
+            return [False]
         return False
 
+    def check_column(self, isUtility=False):
+        """Return True if game ended with column win"""
+        first = [0, 3, 6]
+        second = [1, 4, 7]
+        third = [2, 5, 8]
 
-def controller_checker(self, controller):
-    """Return -1 if human win and 1 if AI win"""
-    if controller == "Human":
-        return -1
-    else:
-        return 1
+        column = [first, second, third]
+        return self.line_loop(column, isUtility)
 
+    def check_diagonal(self, isUtility=False):
+        """Return True if game ended with diagonal win"""
+        bottom_left_upper_right = [0, 4, 8]
+        bottom_right_upper_left = [2, 4, 6]
 
-def check_row(self, isUtility=False):
-    """Return True if game ended with row win"""
-    first = [0, 1, 2]
-    second = [3, 4, 5]
-    third = [6, 7, 8]
+        diagonal = [bottom_left_upper_right, bottom_right_upper_left]
+        return self.line_loop(diagonal, isUtility)
 
-    row = [first, second, third]
+    def line_loop(self, lines, isUtility):
+        """Return True if game ended with type of lines win"""
 
-    for i in range(len(row)):
-        j = row[i]
-        if i == 0 and self.initial_state("Human"):
-            continue
-        elif i == 2 and self.initial_state("AI"):
-            continue
-        else:
-            temp_node = self.get_node_list()[j[0]].get_pawn()
+        for i in lines:
+            temp_node = self.get_node_list()[i[0]].get_pawn()
             if temp_node is None:
                 continue
             controller_temp = temp_node.get_controller()
-            check_all_same = self.all_same_one_line(j, controller_temp, isUtility)
+
+            check_all_same = self.all_same_one_line(i, controller_temp, isUtility)
             if isUtility:
                 if check_all_same[0] != False:
                     return check_all_same
@@ -458,111 +480,66 @@ def check_row(self, isUtility=False):
                 if check_all_same != False:
                     return check_all_same
 
-    if isUtility:
-        return [False]
-    return False
-
-
-def check_column(self, isUtility=False):
-    """Return True if game ended with column win"""
-    first = [0, 3, 6]
-    second = [1, 4, 7]
-    third = [2, 5, 8]
-
-    column = [first, second, third]
-    return self.line_loop(column, isUtility)
-
-
-def check_diagonal(self, isUtility=False):
-    """Return True if game ended with diagonal win"""
-    bottom_left_upper_right = [0, 4, 8]
-    bottom_right_upper_left = [2, 4, 6]
-
-    diagonal = [bottom_left_upper_right, bottom_right_upper_left]
-    return self.line_loop(diagonal, isUtility)
-
-
-def line_loop(self, lines, isUtility):
-    """Return True if game ended with type of lines win"""
-
-    for i in lines:
-        temp_node = self.get_node_list()[i[0]].get_pawn()
-        if temp_node is None:
-            continue
-        controller_temp = temp_node.get_controller()
-
-        check_all_same = self.all_same_one_line(i, controller_temp, isUtility)
         if isUtility:
-            if check_all_same[0] != False:
-                return check_all_same
-        else:
-            if check_all_same != False:
-                return check_all_same
+            return [False]
+        return False
 
-    if isUtility:
-        return [False]
-    return False
+    def all_same_one_line(self, i, controller_temp, isUtility):
+        """Return True if in one line, 3 pawns have same controller"""
+        if self.get_node_list()[i[1]].get_pawn() is not None and self.get_node_list()[i[2]].get_pawn() is not None:
+            if controller_temp == str(
+                    self.get_node_list()[i[1]].get_pawn().get_controller()) == str(
+                self.get_node_list()[i[2]].get_pawn().get_controller()):
+                if isUtility:
+                    return [True, controller_temp]
+                return True
+        if isUtility:
+            return [False, controller_temp]
+        return False
 
+    def initial_state(self, player):
+        """Return True if pawns in initial state"""
+        human_player = [0, 1, 2]
+        ai_player = [6, 7, 8]
 
-def all_same_one_line(self, i, controller_temp, isUtility):
-    """Return True if in one line, 3 pawns have same controller"""
-    if self.get_node_list()[i[1]].get_pawn() is not None and self.get_node_list()[i[2]].get_pawn() is not None:
-        if controller_temp == str(
-                self.get_node_list()[i[1]].get_pawn().get_controller()) == str(
-            self.get_node_list()[i[2]].get_pawn().get_controller()):
-            if isUtility:
-                return [True, controller_temp]
+        rng = human_player
+        if player == "AI":
+            rng = ai_player
+        expected = ""
+        for i in range(3):
+            expected += player
+        temp = ""
+        for i in rng:
+            if self.get_node_list()[i].get_pawn() is None:
+                continue
+            else:
+                temp += self.get_node_list()[i].get_pawn().get_controller()
+        if temp == expected:
             return True
-    if isUtility:
-        return [False, controller_temp]
-    return False
+        return False
 
+    @staticmethod
+    def print_list(pawn, isPawn=False):
+        """Return string from array"""
+        pawns = ""
+        for i in pawn:
+            temp = i
+            if isPawn:
+                temp = i.get_coordinate()
+            pawns += str(temp) + " "
+        return pawns
 
-def initial_state(self, player):
-    """Return True if pawns in initial state"""
-    human_player = [0, 1, 2]
-    ai_player = [6, 7, 8]
-
-    rng = human_player
-    if player == "AI":
-        rng = ai_player
-    expected = ""
-    for i in range(3):
-        expected += player
-    temp = ""
-    for i in rng:
-        if self.get_node_list()[i].get_pawn() is None:
-            continue
-        else:
-            temp += self.get_node_list()[i].get_pawn().get_controller()
-    if temp == expected:
-        return True
-    return False
-
-
-@staticmethod
-def print_list(pawn, isPawn=False):
-    """Return string from array"""
-    pawns = ""
-    for i in pawn:
-        temp = i
-        if isPawn:
-            temp = i.get_coordinate()
-        pawns += str(temp) + " "
-    return pawns
-
-
-def moveable_pawn(self, player):
-    """Return moveable player pawn"""
-    pawn = player.get_pawn()
-    nodes = list()
-    for i in pawn:
-        coordinate = int(i.get_coordinate())
-        temp_node = self.select_node(coordinate)
-        total_move = len(self.possible_move(temp_node))
-        if total_move > 0:
-            nodes.append(temp_node.get_pawn())
-    return nodes
+    def moveable_pawn(self, player):
+        """Return moveable player pawn"""
+        pawn = player.get_pawn()
+        nodes = list()
+        for i in pawn:
+            coordinate = int(i.get_coordinate())
+            temp_node = self.select_node(coordinate)
+            total_move = len(self.possible_move(temp_node))
+            if total_move > 0:
+                nodes.append(temp_node.get_pawn())
+        return nodes
 
 
 class Pawn:
@@ -610,10 +587,10 @@ class Player:
         """Return player name"""
         return self._pawn_list
 
-    def set_value(self,value):
+    def set_value(self, value):
         self._value = value
 
-    def get_value(self,value):
+    def get_value(self, value):
         return self._value
 
     def test_pawn(self):
@@ -644,144 +621,145 @@ class AI(Player):
     def __init__(self):
         """Create human obj with pawns controller is AI"""
         (super(AI, self).__init__("AI"))
-    
-    def check_row_controller(self,rowOf,current_node,board):
+
+    def check_row_controller(self, rowOf, current_node, board):
         first = [0, 1, 2]
         second = [3, 4, 5]
         third = [6, 7, 8]
         row = []
-        controllerValue= dict()
-        controllerValue.update({'human':0,'AI':0})
-        if(rowOf == "first"):
+        controllerValue = dict()
+        controllerValue.update({'human': 0, 'AI': 0})
+        if (rowOf == "first"):
             row = first
-        elif(rowOf == "second"):
+        elif (rowOf == "second"):
             row = second
-        elif(rowOf == "third"):
+        elif (rowOf == "third"):
             row = third
 
         for i in row:
-            if(i != ord(current_node)-48):
+            if (i != ord(current_node) - 48):
                 if board.get_node_list()[i].get_pawn() is not None:
-                    if(board.get_node_list()[i].get_pawn() == "Human"):
-                        if(i != 0 or i != 1 or i != 2):
-                            controllerValue['human']+=1
-                    elif(board.get_node_list()[i].get_pawn() =="AI"):
-                            controllerValue['AI']+=1
-        print("row",controllerValue)
+                    if (board.get_node_list()[i].get_pawn() == "Human"):
+                        if (i != 0 or i != 1 or i != 2):
+                            controllerValue['human'] += 1
+                    elif (board.get_node_list()[i].get_pawn() == "AI"):
+                        controllerValue['AI'] += 1
+        print("row", controllerValue)
         return controllerValue
 
-    def check_diagonal_controller(self,current_node,board):
+    def check_diagonal_controller(self, current_node, board):
         bottom_left_upper_right = [0, 4, 8]
         bottom_right_upper_left = [2, 4, 6]
-        diagonal = [bottom_left_upper_right,bottom_right_upper_left]
-        controllerValue= dict()
-        controllerValue.update({'human':0,'AI':0})
+        diagonal = [bottom_left_upper_right, bottom_right_upper_left]
+        controllerValue = dict()
+        controllerValue.update({'human': 0, 'AI': 0})
         for i in diagonal:
             for j in i:
-                if(j != ord(current_node)-48):
+                if (j != ord(current_node) - 48):
                     if board.get_node_list()[j].get_pawn() is not None:
                         print(j)
                         print("controller", board.get_node_list()[j].get_pawn().get_controller())
-                        if(board.get_node_list()[j].get_pawn().get_controller() == "Human"):
-                            controllerValue['human']+=1
-                            print("Human",controllerValue['human'])
-                        elif(board.get_node_list()[j].get_pawn().get_controller() =="AI"):
-                            controllerValue['AI']+=1
-                            print("AI",controllerValue['AI'])
-        print("diagonal",controllerValue)
+                        if (board.get_node_list()[j].get_pawn().get_controller() == "Human"):
+                            controllerValue['human'] += 1
+                            print("Human", controllerValue['human'])
+                        elif (board.get_node_list()[j].get_pawn().get_controller() == "AI"):
+                            controllerValue['AI'] += 1
+                            print("AI", controllerValue['AI'])
+        print("diagonal", controllerValue)
         return controllerValue
 
-    def check_column_controller(self,columnOf,current_node,board):
+    def check_column_controller(self, columnOf, current_node, board):
         first = [0, 3, 6]
         second = [1, 4, 7]
         third = [2, 5, 8]
         column = []
-        controllerValue= dict()
-        controllerValue.update({'human':0,'AI':0})
+        controllerValue = dict()
+        controllerValue.update({'human': 0, 'AI': 0})
 
-        if(columnOf == "first"):
+        if (columnOf == "first"):
             column = first
-        elif(columnOf == "second"):
+        elif (columnOf == "second"):
             column = second
-        elif(columnOf == "third"):
+        elif (columnOf == "third"):
             column = third
 
         for i in column:
-            if(i != ord(current_node)-48):
+            if (i != ord(current_node) - 48):
                 if board.get_node_list()[i].get_pawn() is not None:
-                    if(board.get_node_list()[i].get_pawn().get_controller() == "Human"):
-                        controllerValue['human']+=1
-                    elif(board.get_node_list()[i].get_pawn().get_controller() =="AI"):
-                        controllerValue['AI']+=1
-        print("column",controllerValue)
+                    if (board.get_node_list()[i].get_pawn().get_controller() == "Human"):
+                        controllerValue['human'] += 1
+                    elif (board.get_node_list()[i].get_pawn().get_controller() == "AI"):
+                        controllerValue['AI'] += 1
+        print("column", controllerValue)
         return controllerValue
 
     def getBestMoveValue(self, nodeList, board):
         pawnValueDict = dict()
-        for current_node,next_move in list(nodeList.items()):
+        for current_node, next_move in list(nodeList.items()):
             rowDict = dict()
             colDict = dict()
             diagonalDict = dict()
-            if(current_node == '8'):
-                rowDict = self.check_row_controller("third",current_node,board)
-                diagonalDict = self.check_diagonal_controller(current_node,board)
-            elif(current_node == '7'):
-                rowDict = self.check_row_controller("second",current_node,board)
-            elif(current_node == '6'):
-                rowDict = self.check_column_controller("first",current_node,board)
-                diagonalDict = self.check_diagonal_controller(current_node,board)
-            elif(current_node == '5'):
-                rowDict = self.check_row_controller("second",current_node,board)
-                colDict = self.check_column_controller("third",current_node,board)
-            elif(current_node == '4'):
-                rowDict = self.check_row_controller("second",current_node,board)
-                colDict = self.check_column_controller("second",current_node,board)
-                diagonalDict = self.check_diagonal_controller(current_node,board)
-            elif(current_node == '3'):
-                rowDict = self.check_row_controller("second",current_node,board)
-                colDict = self.check_column_controller("first",current_node,board)
-            elif(current_node == '2'):
-                rowDict = self.check_row_controller("first",current_node,board)
-                colDict = self.check_column_controller("third",current_node,board)
-                diagonalDict = self.check_diagonal_controller(current_node,board)
-            elif(current_node == '1'):
-                rowDict = self.check_row_controller("first",current_node,board)
-                colDict = self.check_column_controller("second",current_node,board)
-            elif(current_node == '0'):
-                rowDict = self.check_row_controller("first",current_node,board)
-                colDict = self.check_column_controller("first",current_node,board)
-                diagonalDict = self.check_diagonal_controller(current_node,board)
+            if (current_node == '8'):
+                rowDict = self.check_row_controller("third", current_node, board)
+                diagonalDict = self.check_diagonal_controller(current_node, board)
+            elif (current_node == '7'):
+                rowDict = self.check_row_controller("second", current_node, board)
+            elif (current_node == '6'):
+                rowDict = self.check_column_controller("first", current_node, board)
+                diagonalDict = self.check_diagonal_controller(current_node, board)
+            elif (current_node == '5'):
+                rowDict = self.check_row_controller("second", current_node, board)
+                colDict = self.check_column_controller("third", current_node, board)
+            elif (current_node == '4'):
+                rowDict = self.check_row_controller("second", current_node, board)
+                colDict = self.check_column_controller("second", current_node, board)
+                diagonalDict = self.check_diagonal_controller(current_node, board)
+            elif (current_node == '3'):
+                rowDict = self.check_row_controller("second", current_node, board)
+                colDict = self.check_column_controller("first", current_node, board)
+            elif (current_node == '2'):
+                rowDict = self.check_row_controller("first", current_node, board)
+                colDict = self.check_column_controller("third", current_node, board)
+                diagonalDict = self.check_diagonal_controller(current_node, board)
+            elif (current_node == '1'):
+                rowDict = self.check_row_controller("first", current_node, board)
+                colDict = self.check_column_controller("second", current_node, board)
+            elif (current_node == '0'):
+                rowDict = self.check_row_controller("first", current_node, board)
+                colDict = self.check_column_controller("first", current_node, board)
+                diagonalDict = self.check_diagonal_controller(current_node, board)
             if not rowDict:
-                rowDict.update({'human':0,'AI':0})
+                rowDict.update({'human': 0, 'AI': 0})
                 print("norow")
             if not colDict:
-                colDict.update({'human':0,'AI':0})
+                colDict.update({'human': 0, 'AI': 0})
                 print("nocol")
             if not diagonalDict:
-                diagonalDict.update({'human':0,'AI':0})
+                diagonalDict.update({'human': 0, 'AI': 0})
                 print("norow")
-            pawnValueDict[current_node] = 2*(rowDict['AI']+colDict['AI']+diagonalDict['AI'])+(rowDict['human']+colDict['human']+diagonalDict['human'])
+            pawnValueDict[current_node] = 2 * (rowDict['AI'] + colDict['AI'] + diagonalDict['AI']) + (
+                rowDict['human'] + colDict['human'] + diagonalDict['human'])
             print(pawnValueDict)
-            print("rowAI",rowDict['AI'])
-            print("colAI",colDict['AI'])
-            print("diagonalAI",diagonalDict['AI'])
-            print("rowhuman",rowDict['human'])
-            print("colhuman",colDict['human'])
-            print("diagonalhuman",diagonalDict['human'])
-        bestValue=0
-        bestPawn=None
-        for current_node, value in list(pawnValueDict.items()): 
-            if(bestPawn == None):
+            print("rowAI", rowDict['AI'])
+            print("colAI", colDict['AI'])
+            print("diagonalAI", diagonalDict['AI'])
+            print("rowhuman", rowDict['human'])
+            print("colhuman", colDict['human'])
+            print("diagonalhuman", diagonalDict['human'])
+        bestValue = 0
+        bestPawn = None
+        for current_node, value in list(pawnValueDict.items()):
+            if (bestPawn == None):
                 bestPawn = current_node
-            elif(bestValue<pawnValueDict[current_node]):
+            elif (bestValue < pawnValueDict[current_node]):
                 bestValue = pawnValueDict[current_node]
                 bestPawn = current_node
-                print("value is different ",current_node)
-            elif(bestValue == pawnValueDict[current_node]):
+                print("value is different ", current_node)
+            elif (bestValue == pawnValueDict[current_node]):
                 bestPawnRand, bestValuerand = random.choice(list(pawnValueDict.items()))
                 bestPawn = bestPawnRand
                 print("has same value")
-        return bestPawn,nodeList[bestPawn]
+        return bestPawn, nodeList[bestPawn]
 
     def minimax(self, virtual_board, limit):
         board = copy.deepcopy(virtual_board)
@@ -915,7 +893,7 @@ class AI(Player):
         print("Pawn moves :", best_move_each_pawn)
         if len(best_move_each_pawn) > 1:
             board.display_matrix()
-            current_node, very_best_move = self.getBestMoveValue(best_move_each_pawn,board)
+            current_node, very_best_move = self.getBestMoveValue(best_move_each_pawn, board)
             print("best_move_each_pawn", best_move_each_pawn)
             print("Best score :", best_score)
             print("Random move :", current_node, very_best_move)
