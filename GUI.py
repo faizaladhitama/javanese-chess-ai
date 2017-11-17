@@ -287,6 +287,7 @@ def main():
             now = "Human"
         print()
     gui.getAboard().display_matrix()
+    print(gui.getAboard().get_node_list()[1])
     gui.draw()
     while (True):
         if now == "Human":
@@ -299,6 +300,8 @@ def main():
             if (event.type == pygame.QUIT):
                 pygame.quit()
                 sys.exit()
+
+
 
         pygame.display.update()
 
