@@ -187,7 +187,7 @@ class BoardGUI:
             clock.tick(30)
 
 
-def main():
+def play(difficult):
     winner = ""
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pygame.init()
@@ -235,7 +235,7 @@ def main():
             # """
             print("Test Alpha Beta Pruning :")
             now_time = time.time()
-            current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), 4)
+            current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), difficult)
             after_time = time.time()
             print(after_time - now_time)
             print()
@@ -286,9 +286,18 @@ def main():
         else:
             now = "Human"
         print()
+
     gui.getAboard().display_matrix()
     print(gui.getAboard().get_node_list()[1])
     gui.draw()
+    if now == "Human":
+        winner = "AI"
+        surface.blit(pygame.transform.scale(LOSE, (WINDOWHEIGHT - 100, WINDOWHEIGHT - 347)), (277, 180))
+    else:
+        winner = "Human"
+        surface.blit(pygame.transform.scale(WIN, (WINDOWHEIGHT - 100, WINDOWHEIGHT - 347)), (277, 180))
+    pygame.display.update()
+    """
     while (True):
         if now == "Human":
             winner = "AI"
@@ -304,6 +313,4 @@ def main():
 
 
         pygame.display.update()
-
-
-main()
+    """
