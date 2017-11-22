@@ -988,6 +988,7 @@ class AI(Player):
             print("Best score :", best_score)
             print("Random move :", current_node, very_best_move)
             board = copy.deepcopy(virtual_board)
+            """
             print(board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move))))
             while (self.min_alpha_beta(board, 3, -infinity, infinity) == -1 and len(best_move_each_pawn) > 1):
                 best_move_each_pawn.pop(current_node)
@@ -997,6 +998,7 @@ class AI(Player):
                 print(very_best_move)
                 if len(best_move_each_pawn) > 1:
                     print("Re-Prediction")
+            """
         else:
             board = copy.deepcopy(virtual_board)
             print(board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move))))
