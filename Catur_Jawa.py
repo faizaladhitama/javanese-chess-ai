@@ -191,67 +191,6 @@ class Board:
             print(i, ":", i.get_connection())
         pass
 
-    """
-    def generate_board(self):
-<<<<<<< HEAD
-        """
-    ##Create list of node and edge, append nodes to edges
-    """
-    temp = Node("0")
-    created = ""
-    start = temp
-    self._node_list.append(temp)
-    edge_name = 'a'
-    edge_int = ord(edge_name)
-    for i in range(1, 8):
-        created = Node(str(i))
-        self._node_list.append(created)
-        edge = Edge(created, temp, edge_name)
-=======
-        
-        #Create list of node and edge, append nodes to edges
-        
-        temp = Node("0")
-        created = ""
-        start = temp
-        self._node_list.append(temp)
-        edge_name = 'a'
-        edge_int = ord(edge_name)
-        for i in range(1, 8):
-            created = Node(str(i))
-            self._node_list.append(created)
-            edge = Edge(created, temp, edge_name)
-            created.add_connection(edge)
-            temp.add_connection(edge)
-            self._edge_list.append(edge)
-            temp = created
-            edge_int += 1
-            edge_name = chr(edge_int)
-        edge = Edge(created, start, edge_name)
-        start.add_connection(edge)
->>>>>>> f83ef8f9fb42ae2ecff40195fb84a0ef764e19c1
-        created.add_connection(edge)
-        temp.add_connection(edge)
-        self._edge_list.append(edge)
-        temp = created
-        edge_int += 1
-        edge_name = chr(edge_int)
-    edge = Edge(created, start, edge_name)
-    start.add_connection(edge)
-    created.add_connection(edge)
-    self._edge_list.append(edge)
-    center_node = Node("8")
-    self._node_list.append(center_node)
-
-    for i in range(0, 8):
-        edge_int += 1
-        edge_name = chr(edge_int)
-        edge = Edge(self._node_list[i], center_node, edge_name)
-        center_node.add_connection(edge)
-        self._node_list[i].add_connection(edge)
-        self._edge_list.append(edge)
-"""
-
     def set_turn(self, turn):
         self._turn = turn
 
@@ -271,6 +210,16 @@ class Board:
 
     def display_matrix(self):
         """Print matrix representation"""
+
+        for i in range(len(self.get_node_list())):
+            node = self.get_node_list()[i]
+            if node.get_pawn() is None:
+                self._matrix[2 - int(i / 3)][i % 3] = 0
+            else:
+                tile_name = node.get_pawn().get_controller()
+                self._matrix[2 - int(i / 3)][i % 3] = tile_name
+
+        """
         for i in self.get_node_list():
             if i.get_pawn() is None:
                 num = int(i.get_name())
@@ -313,7 +262,8 @@ class Board:
                     self._matrix[0][1] = tile_name
                 elif num == 8:
                     self._matrix[0][2] = tile_name
-
+        
+        """
         for i in self._matrix:
             print(i)
 
@@ -616,7 +566,6 @@ class Human(Player):
 
 class AI(Player):
     """This is AI class inherit Player"""
-    _test = 0
 
     def __init__(self):
         """Create human obj with pawns controller is AI"""
@@ -767,8 +716,7 @@ class AI(Player):
         infinity = float('inf')
         best_score = -infinity
         temp_board = copy.deepcopy(board)
-        current_node = 0
-        very_best_move = 0
+        current_node = very_best_move = 0
         best_move_each_pawn = dict()
         for pawn in pawns:
             moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
@@ -795,99 +743,13 @@ class AI(Player):
                 current_node = node.get_name()
                 best_move_each_pawn[current_node] = best_move
         print("Pawn moves :", best_move_each_pawn)
-        if len(best_move_each_pawn) > 1:
-            board.display_matrix()
-            current_node, very_best_move = self.getBestMoveValue(best_move_each_pawn, board)
-            print("best_move_each_pawn", best_move_each_pawn)
-            print("Best score :", best_score)
-            print("Random move :", current_node, very_best_move)
-            board = copy.deepcopy(virtual_board)
-            print(board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move))))
-            while (self.min_play(board, 3) == -1 and len(best_move_each_pawn) > 1):
-                best_move_each_pawn.pop(current_node)
-                current_node, very_best_move = random.choice(list(best_move_each_pawn.items()))
-                board = copy.deepcopy(virtual_board)
-                board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move)))
-                print(very_best_move)
-                if len(best_move_each_pawn) > 1:
-                    print("Re-Prediction")
-        else:
-            board = copy.deepcopy(virtual_board)
-            print(board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move))))
-            print("Result :", self.min_play(board, 3))
         return best_score, current_node, very_best_move
-
-        """
-        board = copy.deepcopy(virtual_board)
-        pawns = board.moveable_pawn(board.get_player())
-        best_score = float('-inf')
-        temp_board = copy.deepcopy(board)
-        infinity = float('inf')
-        best_move_score = -infinity
-        current_node = 0
-        very_best_move = 0
-        for pawn in pawns:
-            moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
-            best_move = moves[0]
-            node = board.select_node(int(pawn.get_coordinate()))
-            for move in moves:
-                next_node = board.select_node(int(move))
-                temp_node = board.select_node(int(node.get_name()))
-                board.pawn_transition(temp_node, next_node)
-                move_score = self.min_play(board, limit - 1)
-                print(move_score)
-                if move_score > best_move_score:
-                    best_move = move
-                    best_move_score = move_score
-                    current_node = node.get_name()
-                board = copy.deepcopy(temp_board)
-            board = copy.deepcopy(temp_board)
-            if best_move_score > best_score:
-                very_best_move = best_move
-                best_score = best_move_score
-                current_node = node.get_name()
-        return current_node, very_best_move
-        """
-
-    def min_or_max_play(self, virtual_board, limit, min_play=False):
-        board = copy.deepcopy(virtual_board)
-        board.next_turn()
-        if board.win_cond():
-            eval_num = board.win_cond(True)
-            return eval_num
-        if limit <= 0:
-            return 0
-        pawns = board.moveable_pawn(board.get_player())
-        temp_board = copy.deepcopy(board)
-        move_best_score = float('inf')
-        for pawn in pawns:
-            moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
-            node = board.select_node(int(pawn.get_coordinate()))
-            for move in moves:
-                next_node = board.select_node(int(move))
-                temp_node = board.select_node(int(node.get_name()))
-                print("Next :", next_node)
-                print("Current :", temp_node)
-                board.pawn_transition(temp_node, next_node)
-                if min_play:
-                    move_best_score = min(move_best_score, self.min_or_max_play(board, limit - 1))
-                else:
-                    move_best_score = max(move_best_score, self.min_or_max_play(board, limit - 1, True))
-                print(move_best_score)
-                board.display_matrix()
-                print("Win or not :", board.win_cond())
-                print("Util :", board.win_cond(True))
-                board = copy.deepcopy(temp_board)
-            board = copy.deepcopy(temp_board)
-            print("Score :", move_best_score)
-        return move_best_score
 
     def min_play(self, virtual_board, limit):
         board = copy.deepcopy(virtual_board)
         board.next_turn()
         if board.win_cond():
-            eval_num = board.win_cond(True)
-            return eval_num
+            return board.win_cond(True)
         if limit <= 0:
             return 0
         pawns = board.moveable_pawn(board.get_player())
@@ -916,8 +778,7 @@ class AI(Player):
         board = copy.deepcopy(virtual_board)
         board.next_turn()
         if board.win_cond():
-            eval_num = board.win_cond(True)
-            return eval_num
+            return board.win_cond(True)
         if limit <= 0:
             return 0
         pawns = board.moveable_pawn(board.get_player())
@@ -981,72 +842,16 @@ class AI(Player):
                 current_node = node.get_name()
                 best_move_each_pawn[current_node] = best_move
         print("Pawn moves :", best_move_each_pawn)
-        if len(best_move_each_pawn) > 1:
-            board.display_matrix()
-            current_node, very_best_move = self.getBestMoveValue(best_move_each_pawn, board)
-            print("best_move_each_pawn", best_move_each_pawn)
-            print("Best score :", best_score)
-            print("Random move :", current_node, very_best_move)
-            board = copy.deepcopy(virtual_board)
-            """
-            print(board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move))))
-            while (self.min_alpha_beta(board, 3, -infinity, infinity) == -1 and len(best_move_each_pawn) > 1):
-                best_move_each_pawn.pop(current_node)
-                current_node, very_best_move = random.choice(list(best_move_each_pawn.items()))
-                board = copy.deepcopy(virtual_board)
-                board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move)))
-                print(very_best_move)
-                if len(best_move_each_pawn) > 1:
-                    print("Re-Prediction")
-            """
-        else:
-            board = copy.deepcopy(virtual_board)
-            print(board.pawn_transition(board.select_node(int(current_node)), board.select_node(int(very_best_move))))
-            print("Result :", self.min_alpha_beta(board, 3, -infinity, infinity))
-        return best_score, current_node, very_best_move
 
-    def min_or_max_alpha_beta(self, virtual_board, limit, alpha, beta, min_ab=False):
-        board = copy.deepcopy(virtual_board)
-        board.next_turn()
-        if board.win_cond():
-            eval_num = board.win_cond(True)
-            return eval_num
-        if limit <= 0:
-            return 0
-        pawns = board.moveable_pawn(board.get_player())
-        temp_board = copy.deepcopy(board)
-        infinity = float('inf')
-        move_best_score = infinity
-        for pawn in pawns:
-            moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
-            node = board.select_node(int(pawn.get_coordinate()))
-            temp_beta = beta
-            for move in moves:
-                next_node = board.select_node(int(move))
-                temp_node = board.select_node(int(node.get_name()))
-                board.pawn_transition(temp_node, next_node)
-                if min_ab:
-                    move_best_score = min(move_best_score, self.min_or_max_alpha_beta(board, limit - 1, alpha, beta))
-                    if move_best_score <= alpha:
-                        return move_best_score
-                    beta = min(beta, move_best_score)
-                else:
-                    move_best_score = max(move_best_score,
-                                          self.min_or_max_alpha_beta(board, limit - 1, alpha, beta, True))
-                    if move_best_score >= beta:
-                        return move_best_score
-                    alpha = max(alpha, move_best_score)
-                board = copy.deepcopy(temp_board)
-            board = copy.deepcopy(temp_board)
-            beta = temp_beta
-        return move_best_score
+        current_node, very_best_move = self.getBestMoveValue(best_move_each_pawn, board)
+
+        return best_score, current_node, very_best_move
 
     def min_alpha_beta(self, virtual_board, limit, alpha, beta):
         board = copy.deepcopy(virtual_board)
         board.next_turn()
         if board.win_cond():
-            eval_num = board.win_cond(True)
-            return eval_num
+            return board.win_cond(True)
         if limit <= 0:
             return 0
         pawns = board.moveable_pawn(board.get_player())
@@ -1063,6 +868,7 @@ class AI(Player):
                 board.pawn_transition(temp_node, next_node)
                 move_best_score = min(move_best_score, self.max_alpha_beta(board, limit - 1, alpha, beta))
                 if move_best_score <= alpha:
+                    print("Prune min")
                     return move_best_score
                 beta = min(beta, move_best_score)
                 board = copy.deepcopy(temp_board)
@@ -1074,8 +880,7 @@ class AI(Player):
         board = copy.deepcopy(virtual_board)
         board.next_turn()
         if board.win_cond():
-            eval_num = board.win_cond(True)
-            return eval_num
+            return board.win_cond(True)
         if limit <= 0:
             return 0
         pawns = board.moveable_pawn(board.get_player())
@@ -1092,6 +897,7 @@ class AI(Player):
                 board.pawn_transition(temp_node, next_node)
                 move_best_score = max(move_best_score, self.min_alpha_beta(board, limit - 1, alpha, beta))
                 if move_best_score >= beta:
+                    print("Prune max")
                     return move_best_score
                 alpha = max(alpha, move_best_score)
                 board = copy.deepcopy(temp_board)
@@ -1129,83 +935,3 @@ class AI(Player):
         print("Current tile :", current_tile)
         print("Next tile :", next_tile)
         return current_tile, next_tile
-
-
-"""
-def main():
-    board = Board()
-    human = Human()
-    ai = AI()
-    board.assign_pawn_to_board(human, ai)
-    board.set_player({'Human': human, 'AI': ai})
-
-    first_turn = "Human"
-    if random.random() > 0.5:
-        first_turn = "AI"
-
-    if first_turn == "Human":
-        turn = ["Human", "AI"]
-    else:
-        turn = ["AI", "Human"]
-
-    now = turn[0]
-
-    while not board.win_cond():
-        board.set_turn(now)
-        print("Now is {} turn\n".format(now))
-        board.display_matrix()
-
-        if now == "Human":
-            pawn = board.moveable_pawn(human)
-        else:
-            pawn = board.moveable_pawn(ai)
-
-        print("\nYour moveable pawns are on node :\n {} \n".format(board.print_list(pawn, True)))
-
-        if now == "AI":
-            # current_tile = int(pawn[int(math.floor(random.random() * len(pawn)))].get_coordinate())
-
-
-            print("Test Minimax :")
-            now_time = time.time()
-            current_tile, next_tile = ai.test_minimax(board, 6)
-            after_time = time.time()
-            print(after_time - now_time)
-            print()
-
-
-
-            print("Test Alpha Beta Pruning :")
-            now_time = time.time()
-            current_tile, next_tile = ai.test_alpha_beta_pruning(board, 5)
-            after_time = time.time()
-            print(after_time - now_time)
-            print()
-
-
-            print("Choose your tile to move :\n {}".format(current_tile))
-        else:
-            current_tile = int(input("Choose your tile to move :"))
-
-        possible_move = board.pawn_moves(board.select_node(int(current_tile)))
-
-        print("\nYou can move your pawn to node:\n {} \n".format(board.print_list(possible_move)))
-
-        if now == "AI":
-            print("Choose your next tile :\n {}".format(next_tile))
-        else:
-            next_tile = int(input("Choose your next tile : "))
-
-        board.pawn_transition(board.select_node(int(current_tile)), board.select_node(int(next_tile)), now)
-
-        if now == "Human":
-            now = "AI"
-        else:
-            now = "Human"
-        print()
-    if now == "Human":
-        winner = "AI"
-    else:
-        winner = "Human"
-    print("{} is a winner !".format(winner))
-    """
