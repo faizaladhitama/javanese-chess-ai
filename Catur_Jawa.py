@@ -119,63 +119,41 @@ class Board:
             node = Node(str(i))
             self._node_list.append(node)
 
+    def get_latest_edge(self, current, next, edge_int):
+        current_node = self.get_node_list()[current]
+        next_node = self.get_node_list()[next]
+        edge = Edge(current_node, next_node, chr(edge_int))
+        current_node.add_connection(edge)
+        next_node.add_connection(edge)
+        self._edge_list.append(edge)
+        edge_int += 1
+        return chr(edge_int)
+
     def generate_row(self, edge_name):
         for i in range(0, 3):
             for j in range(0, 2):
-                edge_int = ord(edge_name)
                 current = i * 3 + j
                 next = i * 3 + j + 1
-                current_node = self.get_node_list()[current]
-                next_node = self.get_node_list()[next]
-                edge = Edge(current_node, next_node, edge_name)
-                current_node.add_connection(edge)
-                next_node.add_connection(edge)
-                self._edge_list.append(edge)
-                edge_int += 1
-                edge_name = chr(edge_int)
+                edge_name = self.get_latest_edge(current, next, ord(edge_name))
         return edge_name
 
     def generate_collumn(self, edge_name):
         for i in range(0, 3):
             for j in range(0, 2):
-                edge_int = ord(edge_name)
                 current = i + j * 3
                 next = i + j * 3 + 3
-                current_node = self.get_node_list()[current]
-                next_node = self.get_node_list()[next]
-                edge = Edge(current_node, next_node, edge_name)
-                current_node.add_connection(edge)
-                next_node.add_connection(edge)
-                self._edge_list.append(edge)
-                edge_int += 1
-                edge_name = chr(edge_int)
+                edge_name = self.get_latest_edge(current, next, ord(edge_name))
         return edge_name
 
     def generate_diagonal(self, edge_name):
         for i in range(0, 2):
-            edge_int = ord(edge_name)
             current = i * 4
             next = i * 4 + 4
-            current_node = self.get_node_list()[current]
-            next_node = self.get_node_list()[next]
-            edge = Edge(current_node, next_node, edge_name)
-            current_node.add_connection(edge)
-            next_node.add_connection(edge)
-            self._edge_list.append(edge)
-            edge_int += 1
-            edge_name = chr(edge_int)
+            edge_name = self.get_latest_edge(current, next, ord(edge_name))
         for i in range(0, 2):
-            edge_int = ord(edge_name)
             current = i * 2 + 2
             next = i * 2 + 4
-            current_node = self.get_node_list()[current]
-            next_node = self.get_node_list()[next]
-            edge = Edge(current_node, next_node, edge_name)
-            current_node.add_connection(edge)
-            next_node.add_connection(edge)
-            self._edge_list.append(edge)
-            edge_int += 1
-            edge_name = chr(edge_int)
+            edge_name = self.get_latest_edge(current, next, ord(edge_name))
         return edge_name
 
     def generate_board(self):
@@ -219,51 +197,6 @@ class Board:
                 tile_name = node.get_pawn().get_controller()
                 self._matrix[2 - int(i / 3)][i % 3] = tile_name
 
-        """
-        for i in self.get_node_list():
-            if i.get_pawn() is None:
-                num = int(i.get_name())
-                if num == 0:
-                    self._matrix[2][0] = 0
-                elif num == 1:
-                    self._matrix[2][1] = 0
-                elif num == 2:
-                    self._matrix[2][2] = 0
-                elif num == 3:
-                    self._matrix[1][0] = 0
-                elif num == 4:
-                    self._matrix[1][1] = 0
-                elif num == 5:
-                    self._matrix[1][2] = 0
-                elif num == 6:
-                    self._matrix[0][0] = 0
-                elif num == 7:
-                    self._matrix[0][1] = 0
-                elif num == 8:
-                    self._matrix[0][2] = 0
-            else:
-                tile_name = i.get_pawn().get_controller()
-                num = int(i.get_name())
-                if num == 0:
-                    self._matrix[2][0] = tile_name
-                elif num == 1:
-                    self._matrix[2][1] = tile_name
-                elif num == 2:
-                    self._matrix[2][2] = tile_name
-                elif num == 3:
-                    self._matrix[1][0] = tile_name
-                elif num == 4:
-                    self._matrix[1][1] = tile_name
-                elif num == 5:
-                    self._matrix[1][2] = tile_name
-                elif num == 6:
-                    self._matrix[0][0] = tile_name
-                elif num == 7:
-                    self._matrix[0][1] = tile_name
-                elif num == 8:
-                    self._matrix[0][2] = tile_name
-        
-        """
         for i in self._matrix:
             print(i)
 
@@ -305,16 +238,12 @@ class Board:
         legal_edge = self.possible_move(current_state)
         if current_state.get_pawn() is None:
             return "That tile does not have any pawn"
-            # raise Exception("That tile does not have any pawn")
         if next_state.get_pawn() is not None:
             return "Node is occupied"
-            # raise Exception("Node is occupied")
         if player != "" and current_state.get_pawn().get_controller() != player:
-            # raise Exception("That is not your pawn !")
             return "That is not your pawn !"
         if next_state.get_name() not in legal_edge:
             return "You cannot move your pawn to that tile"
-            # raise Exception("You cannot move your pawn to that tile")
         temp = current_state.get_pawn()
         temp.set_coordinate(next_state.get_name())
         current_state.remove_pawn()
@@ -648,32 +577,32 @@ class AI(Player):
             rowDict = dict()
             colDict = dict()
             diagonalDict = dict()
-            if (current_node == '8'):
+            if current_node == '8':
                 rowDict = self.check_row_controller("third", current_node, board)
                 diagonalDict = self.check_diagonal_controller(current_node, board)
-            elif (current_node == '7'):
+            elif current_node == '7':
                 rowDict = self.check_row_controller("second", current_node, board)
-            elif (current_node == '6'):
+            elif current_node == '6':
                 rowDict = self.check_column_controller("first", current_node, board)
                 diagonalDict = self.check_diagonal_controller(current_node, board)
-            elif (current_node == '5'):
+            elif current_node == '5':
                 rowDict = self.check_row_controller("second", current_node, board)
                 colDict = self.check_column_controller("third", current_node, board)
-            elif (current_node == '4'):
+            elif current_node == '4':
                 rowDict = self.check_row_controller("second", current_node, board)
                 colDict = self.check_column_controller("second", current_node, board)
                 diagonalDict = self.check_diagonal_controller(current_node, board)
-            elif (current_node == '3'):
+            elif current_node == '3':
                 rowDict = self.check_row_controller("second", current_node, board)
                 colDict = self.check_column_controller("first", current_node, board)
-            elif (current_node == '2'):
+            elif current_node == '2':
                 rowDict = self.check_row_controller("first", current_node, board)
                 colDict = self.check_column_controller("third", current_node, board)
                 diagonalDict = self.check_diagonal_controller(current_node, board)
-            elif (current_node == '1'):
+            elif current_node == '1':
                 rowDict = self.check_row_controller("first", current_node, board)
                 colDict = self.check_column_controller("second", current_node, board)
-            elif (current_node == '0'):
+            elif current_node == '0':
                 rowDict = self.check_row_controller("first", current_node, board)
                 colDict = self.check_column_controller("first", current_node, board)
                 diagonalDict = self.check_diagonal_controller(current_node, board)
