@@ -290,9 +290,9 @@ class Board:
     def controller_checker(self, controller):
         """Return -1 if human win and 1 if AI win"""
         if controller == "Human":
-            return -1
+            return -100
         else:
-            return 1
+            return 100
 
     def check_row(self, isUtility=False):
         """Return True if game ended with row win"""
@@ -521,28 +521,34 @@ class AI(Player):
                         if (i != 0 or i != 1 or i != 2):
                             controllerValue['human'] += 1
                     elif (board.get_node_list()[i].get_pawn() == "AI"):
-                        controllerValue['AI'] += 1
+                        if (i != 6 or i != 7 or i != 8):
+                            controllerValue['AI'] += 1
         print("row", controllerValue)
         return controllerValue
 
-    def check_diagonal_controller(self, current_node, board):
+    def check_diagonal_controller(self, diagonalOf, current_node, board):
         bottom_left_upper_right = [0, 4, 8]
         bottom_right_upper_left = [2, 4, 6]
         diagonal = [bottom_left_upper_right, bottom_right_upper_left]
         controllerValue = dict()
         controllerValue.update({'human': 0, 'AI': 0})
-        for i in diagonal:
-            for j in i:
-                if (j != ord(current_node) - 48):
-                    if board.get_node_list()[j].get_pawn() is not None:
-                        print(j)
-                        print("controller", board.get_node_list()[j].get_pawn().get_controller())
-                        if (board.get_node_list()[j].get_pawn().get_controller() == "Human"):
-                            controllerValue['human'] += 1
-                            print("Human", controllerValue['human'])
-                        elif (board.get_node_list()[j].get_pawn().get_controller() == "AI"):
-                            controllerValue['AI'] += 1
-                            print("AI", controllerValue['AI'])
+
+        if (diagonalOf == "first"):
+            diag = bottom_left_upper_right
+        elif (diagonalOf == "second"):
+            diag = bottom_right_upper_left
+
+        for j in diag:
+            if (j != ord(current_node) - 48):
+                if board.get_node_list()[j].get_pawn() is not None:
+                    print(j)
+                    print("controller", board.get_node_list()[j].get_pawn().get_controller())
+                    if (board.get_node_list()[j].get_pawn().get_controller() == "Human"):
+                        controllerValue['human'] += 1
+                        print("Human", controllerValue['human'])
+                    elif (board.get_node_list()[j].get_pawn().get_controller() == "AI"):
+                        controllerValue['AI'] += 1
+                        print("AI", controllerValue['AI'])
         print("diagonal", controllerValue)
         return controllerValue
 
@@ -571,12 +577,111 @@ class AI(Player):
         print("column", controllerValue)
         return controllerValue
 
+    def getNodeValue(self, current_node, board):
+        rowDict = {'human': 0, 'AI': 0}
+        colDict = {'human': 0, 'AI': 0}
+        diagonalDict = {'human': 0, 'AI': 0}
+        current_node = str(current_node)
+
+        if current_node == '8':
+            rowDict = self.check_row_controller("third", current_node, board)
+            colDict = self.check_column_controller("third", current_node, board)
+            diagonalDict = self.check_diagonal_controller("first", current_node, board)
+        elif current_node == '7':
+            rowDict = self.check_row_controller("third", current_node, board)
+            colDict = self.check_column_controller("second", current_node, board)
+        elif current_node == '6':
+            rowDict = self.check_row_controller("third", current_node, board)
+            colDict = self.check_column_controller("first", current_node, board)
+            diagonalDict = self.check_diagonal_controller("second", current_node, board)
+        elif current_node == '5':
+            rowDict = self.check_row_controller("second", current_node, board)
+            colDict = self.check_column_controller("third", current_node, board)
+        elif current_node == '4':
+            rowDict = self.check_row_controller("second", current_node, board)
+            colDict = self.check_column_controller("second", current_node, board)
+            firstDict = self.check_diagonal_controller("first", current_node, board)
+            secondDict = self.check_diagonal_controller("second", current_node, board)
+            firstDict.update(secondDict)
+            diagonalDict = firstDict
+        elif current_node == '3':
+            rowDict = self.check_row_controller("second", current_node, board)
+            colDict = self.check_column_controller("first", current_node, board)
+        elif current_node == '2':
+            rowDict = self.check_row_controller("first", current_node, board)
+            colDict = self.check_column_controller("third", current_node, board)
+            diagonalDict = self.check_diagonal_controller("second", current_node, board)
+        elif current_node == '1':
+            rowDict = self.check_row_controller("first", current_node, board)
+            colDict = self.check_column_controller("second", current_node, board)
+        elif current_node == '0':
+            rowDict = self.check_row_controller("first", current_node, board)
+            colDict = self.check_column_controller("first", current_node, board)
+            diagonalDict = self.check_diagonal_controller("first", current_node, board)
+        if not rowDict:
+            rowDict.update({'human': 0, 'AI': 0})
+            print("norow")
+        if not colDict:
+            colDict.update({'human': 0, 'AI': 0})
+            print("nocol")
+        if not diagonalDict:
+            print("Dict :", diagonalDict)
+            print("norow")
+        print("rowAI", rowDict['AI'])
+        print("colAI", colDict['AI'])
+        print("diagonalAI", diagonalDict['AI'])
+        print("rowhuman", rowDict['human'])
+        print("colhuman", colDict['human'])
+        print("diagonalhuman", diagonalDict['human'])
+        total = -1 * (3 * rowDict['AI'] + 3 * colDict['AI'] + 2 * diagonalDict['AI']) + (
+        3 * rowDict['human'] + 3 * colDict['human'] + 2 * diagonalDict['human'])
+        print("Total :", total)
+        return total
+
     def getBestMoveValue(self, nodeList, board):
         pawnValueDict = dict()
         for current_node, next_move in list(nodeList.items()):
-            rowDict = dict()
-            colDict = dict()
-            diagonalDict = dict()
+            rowDict = {'human': 0, 'AI': 0}
+            colDict = {'human': 0, 'AI': 0}
+            diagonalDict = {'human': 0, 'AI': 0}
+            # """
+            if current_node == '8':
+                rowDict = self.check_row_controller("third", current_node, board)
+                colDict = self.check_column_controller("third", current_node, board)
+                diagonalDict = self.check_diagonal_controller("first", current_node, board)
+            elif current_node == '7':
+                rowDict = self.check_row_controller("third", current_node, board)
+                colDict = self.check_column_controller("second", current_node, board)
+            elif current_node == '6':
+                rowDict = self.check_row_controller("third", current_node, board)
+                colDict = self.check_column_controller("first", current_node, board)
+                diagonalDict = self.check_diagonal_controller("second", current_node, board)
+            elif current_node == '5':
+                rowDict = self.check_row_controller("second", current_node, board)
+                colDict = self.check_column_controller("third", current_node, board)
+            elif current_node == '4':
+                rowDict = self.check_row_controller("second", current_node, board)
+                colDict = self.check_column_controller("second", current_node, board)
+                firstDict = self.check_diagonal_controller("first", current_node, board)
+                secondDict = self.check_diagonal_controller("second", current_node, board)
+                firstDict.update(secondDict)
+                diagonalDict = firstDict
+            elif current_node == '3':
+                rowDict = self.check_row_controller("second", current_node, board)
+                colDict = self.check_column_controller("first", current_node, board)
+            elif current_node == '2':
+                rowDict = self.check_row_controller("first", current_node, board)
+                colDict = self.check_column_controller("third", current_node, board)
+                diagonalDict = self.check_diagonal_controller("second", current_node, board)
+            elif current_node == '1':
+                rowDict = self.check_row_controller("first", current_node, board)
+                colDict = self.check_column_controller("second", current_node, board)
+            elif current_node == '0':
+                rowDict = self.check_row_controller("first", current_node, board)
+                colDict = self.check_column_controller("first", current_node, board)
+                diagonalDict = self.check_diagonal_controller("first", current_node, board)
+            # """
+            """
             if current_node == '8':
                 rowDict = self.check_row_controller("third", current_node, board)
                 diagonalDict = self.check_diagonal_controller(current_node, board)
@@ -606,6 +711,7 @@ class AI(Player):
                 rowDict = self.check_row_controller("first", current_node, board)
                 colDict = self.check_column_controller("first", current_node, board)
                 diagonalDict = self.check_diagonal_controller(current_node, board)
+            """
             if not rowDict:
                 rowDict.update({'human': 0, 'AI': 0})
                 print("norow")
@@ -615,8 +721,8 @@ class AI(Player):
             if not diagonalDict:
                 diagonalDict.update({'human': 0, 'AI': 0})
                 print("norow")
-            pawnValueDict[current_node] = 2 * (rowDict['AI'] + colDict['AI'] + diagonalDict['AI']) + (
-                rowDict['human'] + colDict['human'] + diagonalDict['human'])
+            pawnValueDict[current_node] = -1 * (3 * rowDict['AI'] + 3 * colDict['AI'] + 2 * diagonalDict['AI']) + (
+                3 * rowDict['human'] + 3 * colDict['human'] + 2 * diagonalDict['human'])
             print(pawnValueDict)
             print("rowAI", rowDict['AI'])
             print("colAI", colDict['AI'])
@@ -755,7 +861,8 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_score = self.min_alpha_beta(board, limit, best_move_score, beta)
+                move_score = self.min_alpha_beta(board, limit, best_move_score, beta, next_node)
+                print(temp_node, next_node, move_score)
                 if move_score > best_move_score:
                     best_move = move
                     best_move_score = move_score
@@ -776,13 +883,13 @@ class AI(Player):
 
         return best_score, current_node, very_best_move
 
-    def min_alpha_beta(self, virtual_board, limit, alpha, beta):
+    def min_alpha_beta(self, virtual_board, limit, alpha, beta, next_node):
         board = copy.deepcopy(virtual_board)
         board.next_turn()
         if board.win_cond():
             return board.win_cond(True)
         if limit <= 0:
-            return 0
+            return self.getNodeValue(next_node, board)
         pawns = board.moveable_pawn(board.get_player())
         temp_board = copy.deepcopy(board)
         infinity = float('inf')
@@ -795,7 +902,7 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_best_score = min(move_best_score, self.max_alpha_beta(board, limit - 1, alpha, beta))
+                move_best_score = min(move_best_score, self.max_alpha_beta(board, limit - 1, alpha, beta, next_node))
                 if move_best_score <= alpha:
                     print("Prune min")
                     return move_best_score
@@ -805,13 +912,13 @@ class AI(Player):
             beta = temp_beta
         return move_best_score
 
-    def max_alpha_beta(self, virtual_board, limit, alpha, beta):
+    def max_alpha_beta(self, virtual_board, limit, alpha, beta, next_node):
         board = copy.deepcopy(virtual_board)
         board.next_turn()
         if board.win_cond():
             return board.win_cond(True)
         if limit <= 0:
-            return 0
+            return self.getNodeValue(next_node, board)
         pawns = board.moveable_pawn(board.get_player())
         temp_board = copy.deepcopy(board)
         infinity = float('inf')
@@ -824,7 +931,7 @@ class AI(Player):
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
-                move_best_score = max(move_best_score, self.min_alpha_beta(board, limit - 1, alpha, beta))
+                move_best_score = max(move_best_score, self.min_alpha_beta(board, limit - 1, alpha, beta, next_node))
                 if move_best_score >= beta:
                     print("Prune max")
                     return move_best_score
