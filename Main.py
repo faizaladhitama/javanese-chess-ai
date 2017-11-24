@@ -2,13 +2,13 @@ from GUI import play
 
 
 def choose_difficult(diff):
-    choices = {'Easy': 2, 'Normal': 4, 'Hard': 6}
+    choices = {'Easy': 3, 'Normal': 5, 'Hard': 7}
     return choices.get(diff, 'Normal')
 
 
 def main():
     end_game = False
-    difficult = choose_difficult("Normal")
+    difficult = choose_difficult("Easy")
     while (not end_game):
         play(difficult)
         ask_to_restart = input("Restart? Y/N")
