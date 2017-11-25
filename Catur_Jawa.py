@@ -557,7 +557,7 @@ class AI(Player):
             diagonalDict = self.check_diagonal_helper(current_node, board, controllerValue)
         rowDict = self.check_row_controller(int(node_num / 3), current_node, board, controllerValue)
         colDict = self.check_column_controller(int(node_num % 3), current_node, board, controllerValue)
-        total = -1 * (3 * rowDict['AI'] + 3 * colDict['AI'] + 2 * diagonalDict['AI']) + (
+        total = (3 * rowDict['AI'] + 3 * colDict['AI'] + 2 * diagonalDict['AI']) + -1 *(
             3 * rowDict['human'] + 3 * colDict['human'] + 2 * diagonalDict['human'])
         print("Total :", total)
         return total
