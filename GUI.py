@@ -260,14 +260,14 @@ class BoardGUI:
                         chose = False
                         print("x",x)
                         print("y",y)
-                        if (x in range(341,377) and y in range(447,471)):
+                        if (x in range(340,472) and y in range(337,447)):
                             self.surface.blit(pygame.transform.scale(WIN_YES, (605, 330)), (243, 160))
                             pygame.display.update()
                             print("x",x)
                             print("y",y)
                             print("Y")
                         
-                        elif(x in range(620,750) and y in range(447,471)):
+                        elif(x in range(619,750) and y in range(337,447)):
                             self.surface.blit(pygame.transform.scale(WIN_NO, (605, 330)), (243, 160))
                             pygame.display.update()
                             print("x",x)
