@@ -191,6 +191,7 @@ def play(difficult):
     winner = ""
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pygame.init()
+    pygame.HWSURFACE
     surface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     gui = BoardGUI(surface)
     first_turn = "Human"
@@ -237,7 +238,7 @@ def play(difficult):
             now_time = time.time()
             current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), difficult)
             after_time = time.time()
-            print(after_time - now_time)
+            print("Running time :",after_time - now_time)
             print()
             # """
 
