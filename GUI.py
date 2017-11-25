@@ -24,9 +24,10 @@ YELLOW_SPOT = pygame.image.load(os.path.join("images", "yellow_spot.png"))
 GREEN_SPOT = pygame.image.load(os.path.join("images", "green_spot.png"))
 WIN = pygame.image.load(os.path.join("images", "You_Win.png"))
 LOSE = pygame.image.load(os.path.join("images", "You_Lose.png"))
+LOSE_YES = pygame.image.load(os.path.join("images", "You_Lose_YES.png"))
+LOSE_NO = pygame.image.load(os.path.join("images", "You_Lose_NO.png"))
 YOUR_TURN = pygame.image.load(os.path.join("images", "your_turn.png"))
 AI_TURN = pygame.image.load(os.path.join("images", "ai_turn.png"))
-
 
 class BoardGUI:
     turn = 1
@@ -187,7 +188,107 @@ class BoardGUI:
                     print("Node :", node)
                     return node
             clock.tick(30)
+    def getTurn(self):
+        first_turn = "Human"
+        turn = []
+        if random.random() > 0.5:
+            first_turn = "AI"
+        if first_turn == "Human":
+            turn = ["Human", "AI"]
+        else:
+            turn = ["AI", "Human"]
+        print(turn)
+        return turn
+    def get_winner(self,now):
+        winner = ""
+        if now == "Human":
+            winner = "AI"
+        else:
+            winner = "Human"
+        return winner
 
+    def quit(self,winner):
+        if(winner == "AI"):
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+
+                    if event.type == pygame.MOUSEMOTION:
+                        x, y = event.pos
+                        chose = False
+                        print("x",x)
+                        print("y",y)
+                        if (x in range(340,472) and y in range(337,447)):
+                            self.surface.blit(pygame.transform.scale(LOSE_YES, (605, 330)), (243, 160))
+                            pygame.display.update()
+                            print("x",x)
+                            print("y",y)
+                            print("Y")
+                        
+                        elif(x in range(619,750) and y in range(337,447)):
+                            self.surface.blit(pygame.transform.scale(LOSE_NO, (605, 330)), (243, 160))
+                            pygame.display.update()
+                            print("x",x)
+                            print("y",y)
+                            print("N")
+                        else:
+                            self.surface.blit(pygame.transform.scale(LOSE, (605, 330)), (243, 160))
+                            pygame.display.update()
+                            print("x",x)
+                            print("y",y)
+                            print("Not N or Y?")
+                    if event.type == pygame.MOUSEBUTTONUP:
+                        if (x in range(340,472) and y in range(337,447)):
+                            return "Y"
+                        
+                        elif(x in range(619,750) and y in range(337,447)):
+                            return "N"
+                        else:
+                            print("Not N or Y?")
+                    print("no even?")
+        elif(winner == "Human"):
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+
+                    if event.type == pygame.MOUSEMOTION:
+                        x, y = event.pos
+                        chose = False
+                        print("x",x)
+                        print("y",y)
+                        if (x in range(341,377) and y in range(447,471)):
+                            self.surface.blit(pygame.transform.scale(WIN_YES, (605, 330)), (243, 160))
+                            pygame.display.update()
+                            print("x",x)
+                            print("y",y)
+                            print("Y")
+                        
+                        elif(x in range(620,750) and y in range(447,471)):
+                            self.surface.blit(pygame.transform.scale(WIN_NO, (605, 330)), (243, 160))
+                            pygame.display.update()
+                            print("x",x)
+                            print("y",y)
+                            print("N")
+                        else:
+                            self.surface.blit(pygame.transform.scale(WIN, (605, 330)), (243, 160))
+                            pygame.display.update()
+                            print("x",x)
+                            print("y",y)
+                            print("Not N or Y?")
+                    if event.type == pygame.MOUSEBUTTONUP:
+                        if (x in range(340,472) and y in range(337,447)):
+                            return "Y"
+                        
+                        elif(x in range(619,750) and y in range(337,447)):
+                            return "N"
+                        else:
+                            print("Not N or Y?")
+                    print("no even?")
+            print("out of loop?")
 
 def play(difficult):
     winner = ""
@@ -196,19 +297,12 @@ def play(difficult):
     pygame.mixer.pre_init(22050,-16,2,4096)
     pygame.HWSURFACE
     surface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-    time.sleep(2)
     gui = BoardGUI(surface)
-    first_turn = "Human"
-    if random.random() > 0.5:
-        first_turn = "AI"
-    if first_turn == "Human":
-        turn = ["Human", "AI"]
-    else:
-        turn = ["AI", "Human"]
-
-    now = turn[0]
+    now = gui.getTurn()[0]
+    print(now)
     backsound = pygame.mixer.Sound(os.path.join("music","backsound.wav"))
     backsound.play(-1)
+    backsound.set_volume(0.1)
     #BACKSOUND = pygame.mixer.music.load(os.path.join("music", "backsound.mp3"))
     while not gui.getAboard().win_cond():
         gui.getAboard().set_turn(now)
@@ -300,17 +394,12 @@ def play(difficult):
     gui.getAboard().display_matrix()
     print(gui.getAboard().get_node_list()[1])
     gui.draw()
-    if now == "Human":
-        winner = "AI"
-        backsound.stop()
-        time.sleep(1)
-        surface.blit(pygame.transform.scale(LOSE, (605, 330)), (243, 160))
-    else:
-        winner = "Human"
-        backsound.stop()
-        time.sleep(1)
-        surface.blit(pygame.transform.scale(WIN, (605, 330)), (243, 160))
     pygame.display.update()
+    backsound.stop()
+    winner = gui.get_winner(now)
+    quit_response = gui.quit(winner)
+    return quit_response
+
     """
     while (True):
         if now == "Human":
