@@ -177,6 +177,8 @@ class BoardGUI:
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONUP:
+                    pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
+                    pion_put.play()
                     (mouseX, mouseY) = pygame.mouse.get_pos()
                     print(mouseX, mouseY)
                     matrixNode = self.ConvertToChessCoords((mouseX, mouseY))
@@ -191,8 +193,10 @@ def play(difficult):
     winner = ""
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pygame.init()
+    pygame.mixer.pre_init(22050,-16,2,4096)
     pygame.HWSURFACE
     surface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+    time.sleep(2)
     gui = BoardGUI(surface)
     first_turn = "Human"
     if random.random() > 0.5:
@@ -203,6 +207,9 @@ def play(difficult):
         turn = ["AI", "Human"]
 
     now = turn[0]
+    backsound = pygame.mixer.Sound(os.path.join("music","backsound.wav"))
+    backsound.play(-1)
+    #BACKSOUND = pygame.mixer.music.load(os.path.join("music", "backsound.mp3"))
     while not gui.getAboard().win_cond():
         gui.getAboard().set_turn(now)
         print("Now is {} turn\n".format(now))
@@ -240,6 +247,8 @@ def play(difficult):
             after_time = time.time()
             print("Running time :",after_time - now_time)
             print()
+            pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
+            pion_put.play()
             # """
 
             """
@@ -293,10 +302,14 @@ def play(difficult):
     gui.draw()
     if now == "Human":
         winner = "AI"
-        surface.blit(pygame.transform.scale(LOSE, (WINDOWHEIGHT - 100, WINDOWHEIGHT - 347)), (277, 180))
+        backsound.stop()
+        time.sleep(1)
+        surface.blit(pygame.transform.scale(LOSE, (605, 330)), (243, 160))
     else:
         winner = "Human"
-        surface.blit(pygame.transform.scale(WIN, (WINDOWHEIGHT - 100, WINDOWHEIGHT - 347)), (277, 180))
+        backsound.stop()
+        time.sleep(1)
+        surface.blit(pygame.transform.scale(WIN, (605, 330)), (243, 160))
     pygame.display.update()
     """
     while (True):
