@@ -279,11 +279,7 @@ class Board:
                 return self.controller_checker(diagonal[1])
             return 0
         else:
-            if self.check_row():
-                return True
-            elif self.check_column():
-                return True
-            elif self.check_diagonal():
+            if self.check_row() or self.check_column() or self.check_diagonal():
                 return True
             return False
 
@@ -500,65 +496,40 @@ class AI(Player):
         """Create human obj with pawns controller is AI"""
         (super(AI, self).__init__("AI"))
 
-    def check_row_controller(self, rowOf, current_node, board, controllerValue):
-        first = [0, 1, 2]
-        second = [3, 4, 5]
-        third = [6, 7, 8]
-        rows = [first, second, third]
-        row = rows[rowOf]
-        for i in row:
+    def check_line_controller(self,looper,current_node,board,controllerValue,row=False):
+        for i in looper:
             if (i != int(current_node)):
                 node_pawn = board.get_node_list()[i].get_pawn()
                 if node_pawn is not None:
                     pawn_controller = node_pawn.get_controller()
                     if (pawn_controller == "Human"):
-                        if (i != 0 or i != 1 or i != 2):
-                            controllerValue['human'] += 1
+                        controllerValue['human'] += 1
+                        if (row and (i == 0 or i == 1 or i == 2)):
+                            controllerValue['human'] -= 1
                     elif (pawn_controller == "AI"):
-                        if (i != 6 or i != 7 or i != 8):
-                            controllerValue['AI'] += 1
+                        controllerValue['AI'] += 1
+                        if (row and (i == 6 or i == 7 or i == 8)):
+                            controllerValue['AI'] -= 1
+        return controllerValue
+
+    def check_row_controller(self, rowOf, current_node, board, controllerValue):
+        rows = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
+        row = rows[rowOf]
+        controllerValue = self.check_line_controller(row,current_node,board,controllerValue,True)
         print("row", controllerValue)
         return controllerValue
 
     def check_diagonal_controller(self, diagonalOf, current_node, board, controllerValue):
-        bottom_left_upper_right = [0, 4, 8]
-        bottom_right_upper_left = [2, 4, 6]
-        diagonals = [bottom_left_upper_right, bottom_right_upper_left]
+        diagonals = [[0, 4, 8], [2, 4, 6]]
         diagonal = diagonals[diagonalOf]
-        for i in diagonal:
-            if (i != int(current_node)):
-                node_pawn = board.get_node_list()[i].get_pawn()
-                if board.get_node_list()[i].get_pawn() is not None:
-                    print(i)
-                    print("controller", board.get_node_list()[i].get_pawn().get_controller())
-                    pawn_controller = node_pawn.get_controller()
-                    if (pawn_controller == "Human"):
-                        controllerValue['human'] += 1
-                        print("Human", controllerValue['human'])
-                    elif (pawn_controller == "AI"):
-                        controllerValue['AI'] += 1
-                        print("AI", controllerValue['AI'])
+        controllerValue = self.check_line_controller(diagonal, current_node, board, controllerValue)
         print("diagonal", controllerValue)
         return controllerValue
 
     def check_column_controller(self, columnOf, current_node, board, controllerValue):
-        first = [0, 3, 6]
-        second = [1, 4, 7]
-        third = [2, 5, 8]
-        columns = [first, second, third]
-
+        columns = [[0, 3, 6], [1, 4, 7], [2, 5, 8]]
         column = columns[columnOf]
-        for i in column:
-            print("kolom ke",i)
-            if (i != int(current_node)):
-                print("masuk ke kolom",i)
-                node_pawn = board.get_node_list()[i].get_pawn()
-                if node_pawn is not None:
-                    pawn_controller = node_pawn.get_controller()
-                    if (pawn_controller == "Human"):
-                        controllerValue['human'] += 1
-                    elif (pawn_controller == "AI"):
-                        controllerValue['AI'] += 1
+        controllerValue = self.check_line_controller(column, current_node, board, controllerValue)
         print("column", controllerValue)
         return controllerValue
 
@@ -699,10 +670,7 @@ class AI(Player):
 
     def test_minimax(self, board, limit):
         virtual_board = copy.deepcopy(board)
-
         current_tile, next_tile = self.minimax(virtual_board, limit)
-        print(self._test)
-
         print("Current tile :", current_tile)
         print("Next tile :", next_tile)
         return current_tile, next_tile
@@ -713,8 +681,6 @@ class AI(Player):
         infinity = float('inf')
         best_score = -infinity
         temp_board = copy.deepcopy(board)
-        current_node = 0
-        very_best_move = 0
         best_move_each_pawn = dict()
         for pawn in pawns:
             moves = board.pawn_moves(board.select_node(int(pawn.get_coordinate())))
@@ -734,7 +700,6 @@ class AI(Player):
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
             if best_move_score > best_score:
-                very_best_move = best_move
                 best_score = best_move_score
                 current_node = node.get_name()
                 best_move_each_pawn = dict()
@@ -743,9 +708,7 @@ class AI(Player):
                 current_node = node.get_name()
                 best_move_each_pawn[current_node] = best_move
         print("Pawn moves :", best_move_each_pawn)
-
         current_node, very_best_move = self.getBestMoveValue(best_move_each_pawn, board)
-
         return best_score, current_node, very_best_move
 
     def min_alpha_beta(self, virtual_board, limit, alpha, beta, next_node):
@@ -755,7 +718,6 @@ class AI(Player):
             return board.win_cond(True)
         if limit <= 0:
             return self.check_controller(next_node, board)
-            # return self.getNodeValue(next_node, board)
         pawns = board.moveable_pawn(board.get_player())
         temp_board = copy.deepcopy(board)
         infinity = float('inf')
@@ -785,7 +747,6 @@ class AI(Player):
             return board.win_cond(True)
         if limit <= 0:
             return self.check_controller(next_node, board)
-            # return self.getNodeValue(next_node, board)
         pawns = board.moveable_pawn(board.get_player())
         temp_board = copy.deepcopy(board)
         infinity = float('inf')
@@ -810,11 +771,8 @@ class AI(Player):
 
     def test_alpha_beta_pruning(self, board, limit):
         virtual_board = copy.deepcopy(board)
-
         score, current_tile, next_tile = self.alpha_beta_pruning(virtual_board, limit)
-
-        print()
-        print("Current tile :", current_tile)
+        print("\nCurrent tile :", current_tile)
         print("Next tile :", next_tile)
         return current_tile, next_tile
 
@@ -833,7 +791,6 @@ class AI(Player):
                 curently_best = score_temp
                 current_tile = current_temp
                 next_tile = next_temp
-        print()
-        print("Current tile :", current_tile)
+        print("\nCurrent tile :", current_tile)
         print("Next tile :", next_tile)
         return current_tile, next_tile

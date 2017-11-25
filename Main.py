@@ -2,7 +2,7 @@ from GUI import play
 
 
 def choose_difficult(diff):
-    choices = {'Easy': 3, 'Normal': 5, 'Hard': 7}
+    choices = {'Easy': 2, 'Normal': 4, 'Hard': 6}
     return choices.get(diff, 'Normal')
 
 
