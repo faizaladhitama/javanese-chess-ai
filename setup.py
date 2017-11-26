@@ -15,8 +15,8 @@ elif sys.platform == "win64":
 
 setup(
     name="Catur Jawa",
-    version="0.5",
+    version="0.8",
     author="Faizal Adhitama Prabowo & Tinna Fauzia Azhar",
     description="Catur Jawa Game",
     options={"build_exe": build_exe_options},
-    executables=[Executable("GUI.py", base=base)])
+    executables=[Executable("Main.py", base=base)])
