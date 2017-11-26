@@ -23,11 +23,14 @@ PINK_PION = pygame.image.load(os.path.join("images", "pink.png"))
 YELLOW_SPOT = pygame.image.load(os.path.join("images", "yellow_spot.png"))
 GREEN_SPOT = pygame.image.load(os.path.join("images", "green_spot.png"))
 WIN = pygame.image.load(os.path.join("images", "You_Win.png"))
+WIN_YES = pygame.image.load(os.path.join("images", "You_Win.png"))
+WIN_NO = pygame.image.load(os.path.join("images", "You_Win.png"))
 LOSE = pygame.image.load(os.path.join("images", "You_Lose.png"))
 LOSE_YES = pygame.image.load(os.path.join("images", "You_Lose_YES.png"))
 LOSE_NO = pygame.image.load(os.path.join("images", "You_Lose_NO.png"))
 YOUR_TURN = pygame.image.load(os.path.join("images", "your_turn.png"))
 AI_TURN = pygame.image.load(os.path.join("images", "ai_turn.png"))
+SELECTED = pygame.image.load(os.path.join("images", "selected_spot.png"))
 
 
 class BoardGUI:
@@ -61,7 +64,7 @@ class BoardGUI:
         self.board = self.Aboard.display_matrix()
         self.draw()
 
-    def draw(self, highlightSquares=[]):
+    def draw(self, highlightSquares=[],selectedNode=None):
         # draw blank board
         boardSize = len(self.board)
         current_square = 0
@@ -75,6 +78,7 @@ class BoardGUI:
             current_square = (current_square + 1) % 2
 
         print(highlightSquares)
+        
 
         for square in highlightSquares:
             (screenX, screenY) = self.ConvertToScreenCoords(square)
@@ -89,7 +93,10 @@ class BoardGUI:
                     self.surface.blit(pygame.transform.scale(PINK_PION, (50, 50)), (screenX, screenY))
         print(self.board)
         print("cekin")
-
+        if(selectedNode is not None):
+            (selectedTupplex, selectedTuppley)=self.fromNodeToMatrix(selectedNode)
+            (selectedRow, selectedColumn) = self.ConvertToScreenCoords((selectedTupplex,selectedTuppley))
+            self.surface.blit(pygame.transform.scale(SELECTED, (50, 50)), (selectedRow, selectedColumn))
         pygame.display.flip()
 
     def convertMatrixToNode(self, node):
@@ -101,18 +108,59 @@ class BoardGUI:
                     print("masuk")
                     return (6 - (i * 3)) + j
 
-    def checkValidMove(self, possible_move):
+        """
+        if X == 0 and Y == 0:
+            return 6
+        elif X == 1 and Y == 0:
+            return 3
+        elif X == 2 and Y == 0:
+            return 0
+        elif X == 0 and Y == 1:
+            return 7
+        elif X == 1 and Y == 1:
+            return 4
+        elif X == 2 and Y == 1:
+            return 1
+        elif X == 0 and Y == 2:
+            return 8
+        elif X == 1 and Y == 2:
+            return 5
+        elif X == 2 and Y == 2:
+            return 2
+        """
+
+    def checkValidMove(self, possible_move,node):
         print(possible_move)
         isValid = []
         for i in possible_move:
             isValid.append(i)
         print(isValid)
-        self.draw(isValid)
+        self.draw(isValid,node)
 
     def fromNodeToMatrix(self, node):
         for i in range(9):
             if i == node:
                 return (2 - int(i / 3), i % 3)
+        """
+        if (node == 0):
+            return (2, 0)
+        elif (node == 1):
+            return (2, 1)
+        elif (node == 2):
+            return (2, 2)
+        elif (node == 3):
+            return (1, 0)
+        elif (node == 4):
+            return (1, 1)
+        elif (node == 5):
+            return (1, 2)
+        elif (node == 6):
+            return (0, 0)
+        elif (node == 7):
+            return (0, 1)
+        elif (node == 8):
+            return (0, 2)
+        """
 
     def ConvertToScreenCoords(self, chessSquareTuple):
         # converts a (row,col) chessSquare into the pixel location of the upper-left corner of the square
@@ -138,7 +186,7 @@ class BoardGUI:
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    pion_put = pygame.mixer.Sound(os.path.join("music", "put_pion.wav"))
+                    pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
                     pion_put.play()
                     (mouseX, mouseY) = pygame.mouse.get_pos()
                     print(mouseX, mouseY)
@@ -148,9 +196,9 @@ class BoardGUI:
                     print("Node :", node)
                     return node
             clock.tick(30)
-
     def getTurn(self):
         first_turn = "Human"
+        turn = []
         if random.random() > 0.5:
             first_turn = "AI"
         if first_turn == "Human":
@@ -159,102 +207,112 @@ class BoardGUI:
             turn = ["AI", "Human"]
         print(turn)
         return turn
-
-    def get_winner(self, now):
+    def get_winner(self,now):
+        winner = ""
         if now == "Human":
             winner = "AI"
         else:
             winner = "Human"
         return winner
 
-    def quit(self, winner):
-        if (winner == "AI"):
+    def quit(self,winner):
+        if(winner == "AI"):
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
                         sys.exit()
+
                     if event.type == pygame.MOUSEMOTION:
                         x, y = event.pos
-                        print("x", x)
-                        print("y", y)
-                        if (x in range(340, 472) and y in range(337, 447)):
+                        chose = False
+                        print("x",x)
+                        print("y",y)
+                        if (x in range(340,472) and y in range(337,447)):
                             self.surface.blit(pygame.transform.scale(LOSE_YES, (605, 330)), (243, 160))
                             pygame.display.update()
-                            print("x", x)
-                            print("y", y)
+                            print("x",x)
+                            print("y",y)
                             print("Y")
-                        elif (x in range(619, 750) and y in range(337, 447)):
+                        
+                        elif(x in range(619,750) and y in range(337,447)):
                             self.surface.blit(pygame.transform.scale(LOSE_NO, (605, 330)), (243, 160))
                             pygame.display.update()
-                            print("x", x)
-                            print("y", y)
+                            print("x",x)
+                            print("y",y)
                             print("N")
                         else:
                             self.surface.blit(pygame.transform.scale(LOSE, (605, 330)), (243, 160))
                             pygame.display.update()
-                            print("x", x)
-                            print("y", y)
+                            print("x",x)
+                            print("y",y)
                             print("Not N or Y?")
                     if event.type == pygame.MOUSEBUTTONUP:
-                        if (x in range(340, 472) and y in range(337, 447)):
+                        if (x in range(340,472) and y in range(337,447)):
                             return "Y"
-                        elif (x in range(619, 750) and y in range(337, 447)):
+                        
+                        elif(x in range(619,750) and y in range(337,447)):
                             return "N"
                         else:
                             print("Not N or Y?")
                     print("no even?")
-        elif (winner == "Human"):
+        elif(winner == "Human"):
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
                         sys.exit()
+
                     if event.type == pygame.MOUSEMOTION:
                         x, y = event.pos
                         chose = False
-                        print("x", x)
-                        print("y", y)
-                        if (x in range(340, 472) and y in range(337, 447)):
-                            self.surface.blit(pygame.transform.scale(WIN, (605, 330)), (243, 160))
+                        print("x",x)
+                        print("y",y)
+                        if (x in range(341,377) and y in range(447,471)):
+                            self.surface.blit(pygame.transform.scale(WIN_YES, (605, 330)), (243, 160))
                             pygame.display.update()
-                            print("x", x)
-                            print("y", y)
+                            print("x",x)
+                            print("y",y)
                             print("Y")
-                        elif (x in range(619, 750) and y in range(337, 447)):
-                            self.surface.blit(pygame.transform.scale(WIN, (605, 330)), (243, 160))
+                        
+                        elif(x in range(620,750) and y in range(447,471)):
+                            self.surface.blit(pygame.transform.scale(WIN_NO, (605, 330)), (243, 160))
                             pygame.display.update()
-                            print("x", x)
-                            print("y", y)
+                            print("x",x)
+                            print("y",y)
                             print("N")
                         else:
                             self.surface.blit(pygame.transform.scale(WIN, (605, 330)), (243, 160))
                             pygame.display.update()
-                            print("x", x)
-                            print("y", y)
+                            print("x",x)
+                            print("y",y)
                             print("Not N or Y?")
                     if event.type == pygame.MOUSEBUTTONUP:
-                        if (x in range(340, 472) and y in range(337, 447)):
+                        if (x in range(340,472) and y in range(337,447)):
                             return "Y"
-                        elif (x in range(619, 750) and y in range(337, 447)):
+                        
+                        elif(x in range(619,750) and y in range(337,447)):
                             return "N"
                         else:
                             print("Not N or Y?")
                     print("no even?")
+            print("out of loop?")
 
 def play(difficult):
     winner = ""
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pygame.init()
-    pygame.mixer.pre_init(22050, -16, 2, 4096)
+    pygame.mixer.pre_init(22050,-16,2,4096)
+    pygame.HWSURFACE
     surface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     gui = BoardGUI(surface)
     now = gui.getTurn()[0]
     print(now)
-    backsound = pygame.mixer.Sound(os.path.join("music", "backsound.wav"))
+    backsound = pygame.mixer.Sound(os.path.join("music","backsound.wav"))
     backsound.play(-1)
     backsound.set_volume(0.1)
-    # BACKSOUND = pygame.mixer.music.load(os.path.join("music", "backsound.mp3"))
+    #BACKSOUND = pygame.mixer.music.load(os.path.join("music", "backsound.mp3"))
+
     while not gui.getAboard().win_cond():
         gui.getAboard().set_turn(now)
         print("Now is {} turn\n".format(now))
@@ -274,6 +332,8 @@ def play(difficult):
             pawn = gui.getAboard().moveable_pawn(gui.getAI())
 
         if now == "AI":
+            # current_tile = int(pawn[int(math.floor(random.random() * len(pawn)))].get_coordinate())
+
             """
             print("Test Minimax :")
             now_time = time.time()
@@ -288,9 +348,9 @@ def play(difficult):
             now_time = time.time()
             current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), difficult)
             after_time = time.time()
-            print("Running time :", after_time - now_time)
+            print("Running time :",after_time - now_time)
             print()
-            pion_put = pygame.mixer.Sound(os.path.join("music", "put_pion.wav"))
+            pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
             pion_put.play()
             # """
 
@@ -319,7 +379,7 @@ def play(difficult):
                 i_inMatrix = gui.fromNodeToMatrix(int(i))
                 list_possible_move_matrix.append(i_inMatrix)
             print(list_possible_move_matrix)
-            gui.checkValidMove(list_possible_move_matrix)
+            gui.checkValidMove(list_possible_move_matrix,int(current_tile))
 
             if now == "AI":
                 print("Choose your next tile :\n {}".format(next_tile))
@@ -348,3 +408,21 @@ def play(difficult):
     winner = gui.get_winner(now)
     quit_response = gui.quit(winner)
     return quit_response
+
+    """
+    while (True):
+        if now == "Human":
+            winner = "AI"
+            surface.blit(pygame.transform.scale(LOSE, (WINDOWHEIGHT - 100, WINDOWHEIGHT - 347)), (277, 180))
+        else:
+            winner = "Human"
+            surface.blit(pygame.transform.scale(WIN, (WINDOWHEIGHT - 100, WINDOWHEIGHT - 347)), (277, 180))
+        for event in pygame.event.get():
+            if (event.type == pygame.QUIT):
+                pygame.quit()
+                sys.exit()
+
+
+
+        pygame.display.update()
+    """
