@@ -7,15 +7,14 @@ def choose_difficult(diff):
 
 
 def main():
-    end_game = False
     difficult = choose_difficult("Easy")
     ask_to_restart = ""    
     while(ask_to_restart == ""):
         print("finish?")
         ask_to_restart = play(difficult)
         print(ask_to_restart)
-        if(ask_to_restart == "N"):
-        	exit()
-        elif(ask_to_restart == "Y"):
-        	ask_to_restart = ""
+        if ask_to_restart == "N":
+            exit()
+        elif ask_to_restart == "Y":
+            ask_to_restart = ""
 main()
