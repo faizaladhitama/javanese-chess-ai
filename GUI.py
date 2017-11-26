@@ -23,11 +23,14 @@ PINK_PION = pygame.image.load(os.path.join("images", "pink.png"))
 YELLOW_SPOT = pygame.image.load(os.path.join("images", "yellow_spot.png"))
 GREEN_SPOT = pygame.image.load(os.path.join("images", "green_spot.png"))
 WIN = pygame.image.load(os.path.join("images", "You_Win.png"))
+WIN_YES = pygame.image.load(os.path.join("images", "You_Win_YES.png"))
+WIN_NO = pygame.image.load(os.path.join("images", "You_Win_NO.png"))
 LOSE = pygame.image.load(os.path.join("images", "You_Lose.png"))
 LOSE_YES = pygame.image.load(os.path.join("images", "You_Lose_YES.png"))
 LOSE_NO = pygame.image.load(os.path.join("images", "You_Lose_NO.png"))
 YOUR_TURN = pygame.image.load(os.path.join("images", "your_turn.png"))
 AI_TURN = pygame.image.load(os.path.join("images", "ai_turn.png"))
+SELECTED = pygame.images.load(os.path.join("images","selected_spot.png"))
 
 class BoardGUI:
     turn = 1
@@ -60,7 +63,7 @@ class BoardGUI:
         self.board = self.Aboard.display_matrix()
         self.draw()
 
-    def draw(self, highlightSquares=[]):
+    def draw(self, highlightSquares=[],selectedNode=None):
         # draw blank board
         boardSize = len(self.board)
         current_square = 0
@@ -74,6 +77,8 @@ class BoardGUI:
             current_square = (current_square + 1) % 2
 
         print(highlightSquares)
+        (selectedTupplex, selectedTuppley)=self.fromNodeToMatrix(selectedNode)
+        self.surface.blit(pygame.transform.scale(GREEN_SPOT, (50, 50)), (selectedTupplex, selectedTuppley))
 
         for square in highlightSquares:
             (screenX, screenY) = self.ConvertToScreenCoords(square)
@@ -121,7 +126,7 @@ class BoardGUI:
             return 2
         """
 
-    def checkValidMove(self, possible_move):
+    def checkValidMove(self, possible_move,inNode):
         print(possible_move)
         isValid = []
         for i in possible_move:
@@ -130,7 +135,7 @@ class BoardGUI:
         self.draw(isValid)
 
     def fromNodeToMatrix(self, node):
-        for i in range(9):
+        for i in range42`(9):
             if i == node:
                 return (2 - int(i / 3), i % 3)
         """
@@ -361,6 +366,7 @@ def play(difficult):
         notNone = gui.getAboard().checkEmptyNode(int(current_tile), now)
         if (notNone == "Good!"):
             print("cek")
+            selected
             possible_move = gui.getAboard().pawn_moves(gui.getAboard().select_node(int(current_tile)))
             print("\nYou can move your pawn to node:\n {} \n".format(gui.getAboard().print_list(possible_move)))
             print(possible_move)
@@ -370,7 +376,7 @@ def play(difficult):
                 i_inMatrix = gui.fromNodeToMatrix(int(i))
                 list_possible_move_matrix.append(i_inMatrix)
             print(list_possible_move_matrix)
-            gui.checkValidMove(list_possible_move_matrix)
+            gui.checkValidMove(list_possible_move_matrix,current_tile)
 
             if now == "AI":
                 print("Choose your next tile :\n {}".format(next_tile))
