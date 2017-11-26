@@ -549,9 +549,9 @@ class AI(Player):
 
         column = columns[columnOf]
         for i in column:
-            print("kolom ke",i)
+            print("kolom ke", i)
             if (i != int(current_node)):
-                print("masuk ke kolom",i)
+                print("masuk ke kolom", i)
                 node_pawn = board.get_node_list()[i].get_pawn()
                 if node_pawn is not None:
                     pawn_controller = node_pawn.get_controller()
@@ -586,7 +586,7 @@ class AI(Player):
             diagonalDict = self.check_diagonal_helper(current_node, board, controllerValue)
         rowDict = self.check_row_controller(int(node_num / 3), current_node, board, controllerValue)
         colDict = self.check_column_controller(int(node_num % 3), current_node, board, controllerValue)
-        total = 2* (3 * rowDict['AI'] + 3 * colDict['AI'] + 2 * diagonalDict['AI']) + -1*(
+        total = 2 * (3 * rowDict['AI'] + 3 * colDict['AI'] + 2 * diagonalDict['AI']) + -1 * (
             3 * rowDict['human'] + 3 * colDict['human'] + 2 * diagonalDict['human'])
         print("Total :", total)
         return total

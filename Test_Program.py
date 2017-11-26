@@ -79,7 +79,7 @@ class BoardTestCase(unittest.TestCase):
         self._board.pawn_transition(self._board.select_node(0), self._board.select_node(3))
         self._board.pawn_transition(self._board.select_node(1), self._board.select_node(4))
         self._board.pawn_transition(self._board.select_node(2), self._board.select_node(5))
-        assert self._board.check_row() ==  True
+        assert self._board.check_row() == True
 
     def test_diagonal_win(self):
         self._board.pawn_transition(self._board.select_node(0), self._board.select_node(3))
