@@ -17,18 +17,18 @@ or diagonal row wins the game.</p>
 
 <h3>Spesification</h3>
 Language : Python<br>
-GUI : PyGame package</br>
+GUI : PyGame package<br>
 OS : Windows 7, 8 , 10
 
 <h3>Search Algorithm</h3>
 Minimax, Alpha-Beta Pruning, etc
 
-<h3>How to install :</h3>
+<h3>How to install</h3>
 <p>If you want to improve this game and install it. Then, you can run install.py on your command line. You should open your command line then
 type "python install.py". Before you install it, you must have python interpreter on your operating system</p>
 
-<h3>How to run :</h3>
+<h3>How to run</h3>
 <ol>
     <li>On command line, type "python Main.py". Then press enter</li>
     <li>Go to build directory then to exe.win32-3.6 directory. Then, double click on Main.exe</li>
-</ol
+</ol>
