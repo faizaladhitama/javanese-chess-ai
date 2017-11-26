@@ -162,12 +162,6 @@ class Board:
         edge_name = self.generate_row(edge_name)
         edge_name = self.generate_collumn(edge_name)
         self.generate_diagonal(edge_name)
-        for i in self.get_node_list():
-            print(i, ":", i.get_connected_to())
-        print()
-        for i in self.get_edge_list():
-            print(i, ":", i.get_connection())
-        pass
 
     def set_turn(self, turn):
         self._turn = turn
@@ -196,9 +190,6 @@ class Board:
             else:
                 tile_name = node.get_pawn().get_controller()
                 self._matrix[2 - int(i / 3)][i % 3] = tile_name
-
-        for i in self._matrix:
-            print(i)
 
         return self._matrix
 
@@ -266,11 +257,8 @@ class Board:
         """Return integer for utility and bool for check win"""
         if isUtility == True:
             row = self.check_row(True)
-            print("Check row :", row)
             column = self.check_column(True)
-            print("Check column :", column)
             diagonal = self.check_diagonal(True)
-            print("Check diagonal :", diagonal)
             if row[0]:
                 return self.controller_checker(row[1])
             elif column[0]:
@@ -517,7 +505,6 @@ class AI(Player):
                     elif (pawn_controller == "AI"):
                         if (i != 6 or i != 7 or i != 8):
                             controllerValue['AI'] += 1
-        print("row", controllerValue)
         return controllerValue
 
     def check_diagonal_controller(self, diagonalOf, current_node, board, controllerValue):
@@ -529,16 +516,11 @@ class AI(Player):
             if (i != int(current_node)):
                 node_pawn = board.get_node_list()[i].get_pawn()
                 if board.get_node_list()[i].get_pawn() is not None:
-                    print(i)
-                    print("controller", board.get_node_list()[i].get_pawn().get_controller())
                     pawn_controller = node_pawn.get_controller()
                     if (pawn_controller == "Human"):
                         controllerValue['human'] += 1
-                        print("Human", controllerValue['human'])
                     elif (pawn_controller == "AI"):
                         controllerValue['AI'] += 1
-                        print("AI", controllerValue['AI'])
-        print("diagonal", controllerValue)
         return controllerValue
 
     def check_column_controller(self, columnOf, current_node, board, controllerValue):
@@ -549,9 +531,7 @@ class AI(Player):
 
         column = columns[columnOf]
         for i in column:
-            print("kolom ke", i)
             if (i != int(current_node)):
-                print("masuk ke kolom", i)
                 node_pawn = board.get_node_list()[i].get_pawn()
                 if node_pawn is not None:
                     pawn_controller = node_pawn.get_controller()
@@ -559,14 +539,12 @@ class AI(Player):
                         controllerValue['human'] += 1
                     elif (pawn_controller == "AI"):
                         controllerValue['AI'] += 1
-        print("column", controllerValue)
         return controllerValue
 
     def check_diagonal_helper(self, current_node, board, controllerValue):
         node_num = int(str(current_node))
         if node_num in [0, 2, 6, 8]:
             if node_num % 8 == 0:
-                print("0 8 ->", str(current_node))
                 return self.check_diagonal_controller(0, current_node, board, controllerValue)
             return self.check_diagonal_controller(1, current_node, board, controllerValue)
         else:
@@ -581,14 +559,12 @@ class AI(Player):
         current_node = str(current_node)
         diagonalDict = {'human': 0, 'AI': 0}
         controllerValue = {'human': 0, 'AI': 0}
-        print("Controller :", node_num, int(node_num / 3), int(node_num % 3))
         if node_num in diag:
             diagonalDict = self.check_diagonal_helper(current_node, board, controllerValue)
         rowDict = self.check_row_controller(int(node_num / 3), current_node, board, controllerValue)
         colDict = self.check_column_controller(int(node_num % 3), current_node, board, controllerValue)
-        total = 2 * (3 * rowDict['AI'] + 3 * colDict['AI'] + 2 * diagonalDict['AI']) + -1 * (
+        total = 2* (3 * rowDict['AI'] + 3 * colDict['AI'] + 2 * diagonalDict['AI']) + -1*(
             3 * rowDict['human'] + 3 * colDict['human'] + 2 * diagonalDict['human'])
-        print("Total :", total)
         return total
 
     def getBestMoveValue(self, nodeList, board):
@@ -603,11 +579,9 @@ class AI(Player):
             elif (bestValue < pawnValueDict[current_node]):
                 bestValue = pawnValueDict[current_node]
                 bestPawn = current_node
-                print("value is different ", current_node)
             elif (bestValue == pawnValueDict[current_node]):
                 bestPawnRand, bestValuerand = random.choice(list(pawnValueDict.items()))
                 bestPawn = bestPawnRand
-                print("has same value")
         return bestPawn, nodeList[bestPawn]
 
     def minimax(self, virtual_board, limit):
@@ -642,7 +616,6 @@ class AI(Player):
             elif best_move_score == best_score:
                 current_node = node.get_name()
                 best_move_each_pawn[current_node] = best_move
-        print("Pawn moves :", best_move_each_pawn)
         return best_score, current_node, very_best_move
 
     def min_play(self, virtual_board, limit):
@@ -661,17 +634,11 @@ class AI(Player):
             for move in moves:
                 next_node = board.select_node(int(move))
                 temp_node = board.select_node(int(node.get_name()))
-                print("Next :", next_node)
-                print("Current :", temp_node)
                 board.pawn_transition(temp_node, next_node)
                 move_best_score = min(move_best_score, self.max_play(board, limit - 1))
-                print(move_best_score)
                 board.display_matrix()
-                print("Win or not :", board.win_cond())
-                print("Util :", board.win_cond(True))
                 board = copy.deepcopy(temp_board)
             board = copy.deepcopy(temp_board)
-            print("Score :", move_best_score)
         return move_best_score
 
     def max_play(self, virtual_board, limit):
@@ -701,7 +668,6 @@ class AI(Player):
         virtual_board = copy.deepcopy(board)
 
         current_tile, next_tile = self.minimax(virtual_board, limit)
-        print(self._test)
 
         print("Current tile :", current_tile)
         print("Next tile :", next_tile)
@@ -727,7 +693,6 @@ class AI(Player):
                 temp_node = board.select_node(int(node.get_name()))
                 board.pawn_transition(temp_node, next_node)
                 move_score = self.min_alpha_beta(board, limit, best_move_score, beta, next_node)
-                print(temp_node, next_node, move_score)
                 if move_score > best_move_score:
                     best_move = move
                     best_move_score = move_score
@@ -742,7 +707,6 @@ class AI(Player):
             elif best_move_score == best_score:
                 current_node = node.get_name()
                 best_move_each_pawn[current_node] = best_move
-        print("Pawn moves :", best_move_each_pawn)
 
         current_node, very_best_move = self.getBestMoveValue(best_move_each_pawn, board)
 
@@ -755,7 +719,6 @@ class AI(Player):
             return board.win_cond(True)
         if limit <= 0:
             return self.check_controller(next_node, board)
-            # return self.getNodeValue(next_node, board)
         pawns = board.moveable_pawn(board.get_player())
         temp_board = copy.deepcopy(board)
         infinity = float('inf')
@@ -770,7 +733,6 @@ class AI(Player):
                 board.pawn_transition(temp_node, next_node)
                 move_best_score = min(move_best_score, self.max_alpha_beta(board, limit - 1, alpha, beta, next_node))
                 if move_best_score <= alpha:
-                    print("Prune min")
                     return move_best_score
                 beta = min(beta, move_best_score)
                 board = copy.deepcopy(temp_board)
@@ -785,7 +747,6 @@ class AI(Player):
             return board.win_cond(True)
         if limit <= 0:
             return self.check_controller(next_node, board)
-            # return self.getNodeValue(next_node, board)
         pawns = board.moveable_pawn(board.get_player())
         temp_board = copy.deepcopy(board)
         infinity = float('inf')
@@ -800,7 +761,6 @@ class AI(Player):
                 board.pawn_transition(temp_node, next_node)
                 move_best_score = max(move_best_score, self.min_alpha_beta(board, limit - 1, alpha, beta, next_node))
                 if move_best_score >= beta:
-                    print("Prune max")
                     return move_best_score
                 alpha = max(alpha, move_best_score)
                 board = copy.deepcopy(temp_board)
@@ -813,8 +773,7 @@ class AI(Player):
 
         score, current_tile, next_tile = self.alpha_beta_pruning(virtual_board, limit)
 
-        print()
-        print("Current tile :", current_tile)
+        print("\nCurrent tile :", current_tile)
         print("Next tile :", next_tile)
         return current_tile, next_tile
 
@@ -833,7 +792,6 @@ class AI(Player):
                 curently_best = score_temp
                 current_tile = current_temp
                 next_tile = next_temp
-        print()
-        print("Current tile :", current_tile)
+        print("\nCurrent tile :", current_tile)
         print("Next tile :", next_tile)
         return current_tile, next_tile
