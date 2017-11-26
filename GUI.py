@@ -31,6 +31,13 @@ LOSE_NO = pygame.image.load(os.path.join("images", "You_Lose_NO.png"))
 YOUR_TURN = pygame.image.load(os.path.join("images", "your_turn.png"))
 AI_TURN = pygame.image.load(os.path.join("images", "ai_turn.png"))
 SELECTED = pygame.image.load(os.path.join("images", "selected_spot.png"))
+DIFFICULT = pygame.image.load(os.path.join("images", "difficult.png"))
+EASY = pygame.image.load(os.path.join("images", "difficult_EASY.png"))
+MEDIUM = pygame.image.load(os.path.join("images", "difficult_MEDIUM.png"))
+HARD = pygame.image.load(os.path.join("images", "difficult_HARD.png"))
+CREDIT = pygame.image.load(os.path.join("images", "credit.png"))
+HOVER_CREDIT = pygame.image.load(os.path.join("images", "credit_clicked.png"))
+CREDIT_SOUND = pygame.image.load(os.path.join("images", "credit_is.png"))
 
 
 class BoardGUI:
@@ -40,13 +47,11 @@ class BoardGUI:
         self.game_over = False
         self.surface = surface
         self.surface.blit(BGCOLOR, (0, 0))
-        self.surface.blit(pygame.transform.scale(BOARD, (WINDOWHEIGHT - 50, WINDOWHEIGHT - 50)), (250, 25))
         self.comeFrom = None
         self.Aboard = cj.Board()
         self.board = ""
         self.human = cj.Human()
         self.ai = cj.AI()
-        self.setup()
 
     def getHuman(self):
         return self.human
@@ -58,6 +63,8 @@ class BoardGUI:
         return self.Aboard
 
     def setup(self):
+        self.surface.blit(BGCOLOR, (0, 0))
+        self.surface.blit(pygame.transform.scale(BOARD, (WINDOWHEIGHT - 50, WINDOWHEIGHT - 50)), (250, 25))
         self.Aboard.assign_pawn_to_board(self.human, self.ai)
         self.Aboard.set_player({'Human': self.human, 'AI': self.ai})
         pygame.display.set_caption('Catur Jawa by Tanpa Nama')
@@ -215,8 +222,64 @@ class BoardGUI:
             winner = "Human"
         return winner
 
+    def choose_difficult(self,diff):
+        choices = {'Easy': 2, 'Normal': 4, 'Hard': 6}
+        return choices.get(diff, 4)
+
+    def debugMenu(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                if event.type == pygame.MOUSEMOTION:
+                        x, y = event.pos
+                        print("x",x)
+                        print("y",y)
+                        if(x in range(256,452) and y in range(352,420)):
+                            self.surface.blit(pygame.transform.scale(CREDIT, (200, 100)), (WINDOWWIDTH-200, 0))
+                            self.surface.blit(pygame.transform.scale(EASY, (605, 330)), (243, 160))
+                            pygame.display.update()
+                        elif(x in range(462,658) and y in range(352,420)):
+                            self.surface.blit(pygame.transform.scale(CREDIT, (200, 100)), (WINDOWWIDTH-200, 0))
+                            self.surface.blit(pygame.transform.scale(MEDIUM, (605, 330)), (243, 160)) 
+                            pygame.display.update()
+                        elif(x in range(668,864) and y in range(352,420)):
+                            self.surface.blit(pygame.transform.scale(CREDIT, (200, 100)), (WINDOWWIDTH-200, 0))
+                            self.surface.blit(pygame.transform.scale(HARD, (605, 330)), (243, 160)) 
+                            pygame.display.update()
+                        elif(x in range(883,1076) and y in range(0,100)):
+                            self.surface.blit(pygame.transform.scale(HOVER_CREDIT, (200, 100)), (WINDOWWIDTH-200, 0))
+                            self.surface.blit(pygame.transform.scale(DIFFICULT, (605, 330)), (243, 160)) 
+                            self.surface.blit(pygame.transform.scale(CREDIT_SOUND, (900, 600)), (0, 20)) 
+                            pygame.display.update()
+                        else:
+                            self.surface.blit(BGCOLOR, (0, 0))
+                            self.surface.blit(pygame.transform.scale(CREDIT, (200, 100)), (WINDOWWIDTH-200, 0))
+                            self.surface.blit(pygame.transform.scale(DIFFICULT, (605, 330)), (243, 160)) 
+                            pygame.display.update()
+                if event.type == pygame.MOUSEBUTTONUP:
+                        x, y = event.pos
+                        print("x",x)
+                        print("y",y)
+                        if(x in range(256,452) and y in range(352,420)):
+                            pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
+                            pion_put.play()
+                            return 'Easy'
+                        elif(x in range(462,658) and y in range(352,420)):
+                            pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
+                            pion_put.play()
+                            return 'Normal'
+                        elif(x in range(668,864) and y in range(352,420)):
+                            pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
+                            pion_put.play()
+                            return 'Hard'
+                     
     def quit(self,winner):
+        time.sleep(1)
         if(winner == "AI"):
+            self.surface.blit(pygame.transform.scale(LOSE, (605, 330)), (243, 160))
+            pygame.display.update()
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -225,7 +288,6 @@ class BoardGUI:
 
                     if event.type == pygame.MOUSEMOTION:
                         x, y = event.pos
-                        chose = False
                         print("x",x)
                         print("y",y)
                         if (x in range(340,472) and y in range(337,447)):
@@ -249,14 +311,21 @@ class BoardGUI:
                             print("Not N or Y?")
                     if event.type == pygame.MOUSEBUTTONUP:
                         if (x in range(340,472) and y in range(337,447)):
+                            pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
+                            pion_put.play()
                             return "Y"
                         
                         elif(x in range(619,750) and y in range(337,447)):
+                            pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
+                            pion_put.play()
                             return "N"
-                        else:
-                            print("Not N or Y?")
                     print("no even?")
         elif(winner == "Human"):
+            self.surface.blit(pygame.transform.scale(WIN, (605, 330)), (243, 160))
+            pygame.display.update()
+            print("x",x)
+            print("y",y)
+            print("Not N or Y?")
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -289,16 +358,20 @@ class BoardGUI:
                             print("Not N or Y?")
                     if event.type == pygame.MOUSEBUTTONUP:
                         if (x in range(340,472) and y in range(337,447)):
+                            pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
+                            pion_put.play()
                             return "Y"
                         
                         elif(x in range(619,750) and y in range(337,447)):
+                            pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
+                            pion_put.play()
                             return "N"
                         else:
                             print("Not N or Y?")
                     print("no even?")
             print("out of loop?")
 
-def play(difficult):
+def play(has_play,difficult=None):
     winner = ""
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pygame.init()
@@ -308,106 +381,124 @@ def play(difficult):
     gui = BoardGUI(surface)
     now = gui.getTurn()[0]
     print(now)
-    backsound = pygame.mixer.Sound(os.path.join("music","backsound.wav"))
-    backsound.play(-1)
-    backsound.set_volume(0.1)
+
     #BACKSOUND = pygame.mixer.music.load(os.path.join("music", "backsound.mp3"))
 
-    while not gui.getAboard().win_cond():
-        gui.getAboard().set_turn(now)
-        print("Now is {} turn\n".format(now))
-        gui.getAboard().display_matrix()
-        gui.draw()
-        if (winner == ""):
-            if (now == "Human"):
-                print("cek HU")
-                surface.blit(pygame.transform.scale(YOUR_TURN, (296, 96)), (0, 0))
-            elif (now == "AI"):
-                surface.blit(pygame.transform.scale(AI_TURN, (296, 96)), (0, 0))
-        gui.draw()
-        if now == "Human":
-            pawn = gui.getAboard().moveable_pawn(gui.getHuman())
-            print("\nYour moveable pawns are on node :\n {} \n".format(gui.getAboard().print_list(pawn, True)))
-        else:
-            pawn = gui.getAboard().moveable_pawn(gui.getAI())
-
-        if now == "AI":
-            # current_tile = int(pawn[int(math.floor(random.random() * len(pawn)))].get_coordinate())
-
-            """
-            print("Test Minimax :")
-            now_time = time.time()
-            current_tile, next_tile = ai.test_minimax(board, 6)
-            after_time = time.time()
-            print(after_time - now_time)
-            print()
-            """
-
-            # """
-            print("Test Alpha Beta Pruning :")
-            now_time = time.time()
-            current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), difficult)
-            after_time = time.time()
-            print("Running time :",after_time - now_time)
-            print()
-            pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
-            pion_put.play()
-            # """
-
-            """
-            print("Test Iterative Deepning Alpha Beta Pruning :")
-            now_time = time.time()
-            current_tile, next_tile = gui.getAI().test_iterative_deepning_alpha_beta_pruning(gui.getAboard(), 6)
-            after_time = time.time()
-            print(after_time - now_time)
-            print()
-            """
-
-        else:
-            current_tile = gui.move_by_mouse()
-            print("Choose your tile to move :\n {}".format(current_tile))
-
-        notNone = gui.getAboard().checkEmptyNode(int(current_tile), now)
-        if (notNone == "Good!"):
-            print("cek")
-            possible_move = gui.getAboard().pawn_moves(gui.getAboard().select_node(int(current_tile)))
-            print("\nYou can move your pawn to node:\n {} \n".format(gui.getAboard().print_list(possible_move)))
-            print(possible_move)
-
-            list_possible_move_matrix = []
-            for i in possible_move:
-                i_inMatrix = gui.fromNodeToMatrix(int(i))
-                list_possible_move_matrix.append(i_inMatrix)
-            print(list_possible_move_matrix)
-            gui.checkValidMove(list_possible_move_matrix,int(current_tile))
+    if(has_play == 0):
+        difficult_sound = pygame.mixer.Sound(os.path.join("music","difficult_backsound.wav"))
+        difficult_sound.play(-1)
+        difficult_sound.set_volume(0.2)
+        chosen_difficult = gui.debugMenu()
+        print(chosen_difficult)
+        difficult= gui.choose_difficult(chosen_difficult)
+        difficult_sound.stop()
+        has_play += 1
+    if(has_play > 0):
+        print(has_play)
+        backsound = pygame.mixer.Sound(os.path.join("music","backsound.wav"))
+        backsound.play(-1)
+        backsound.set_volume(0.2)
+        gui.setup()
+        while not gui.getAboard().win_cond():
+            gui.getAboard().set_turn(now)
+            print("Now is {} turn\n".format(now))
+            gui.getAboard().display_matrix()
+            gui.draw()
+            if (winner == ""):
+                if (now == "Human"):
+                    print("cek HU")
+                    surface.blit(pygame.transform.scale(YOUR_TURN, (296, 96)), (0, 0))
+                elif (now == "AI"):
+                    surface.blit(pygame.transform.scale(AI_TURN, (296, 96)), (0, 0))
+            gui.draw()
+            if now == "Human":
+                pawn = gui.getAboard().moveable_pawn(gui.getHuman())
+                print("\nYour moveable pawns are on node :\n {} \n".format(gui.getAboard().print_list(pawn, True)))
+            else:
+                pawn = gui.getAboard().moveable_pawn(gui.getAI())
 
             if now == "AI":
-                print("Choose your next tile :\n {}".format(next_tile))
-            else:
-                next_tile = gui.move_by_mouse()
-            transition = gui.getAboard().pawn_transition(gui.getAboard().select_node(int(current_tile)),
-                                                         gui.getAboard().select_node(int(next_tile)), now)
-            print(transition)
+                ai_sound = pygame.mixer.Sound(os.path.join("music","ai_sound.wav"))
+                ai_sound.play(-1)
+                # current_tile = int(pawn[int(math.floor(random.random() * len(pawn)))].get_coordinate())
+ 
+                """
+                print("Test Minimax :")
+                now_time = time.time()
+                current_tile, next_tile = ai.test_minimax(board, 6)
+                after_time = time.time()
+                print(after_time - now_time)
+                print()
+                """
 
-            if now == "Human":
-                if (transition == "Good!"):
-                    now = "AI"
+                # """
+                print("Test Alpha Beta Pruning :")
+                print(has_play)
+                print(difficult)
+                now_time = time.time()
+                current_tile, next_tile = gui.getAI().test_alpha_beta_pruning(gui.getAboard(), difficult)
+                after_time = time.time()
+                print("Running time :",after_time - now_time)
+                print()
+                ai_sound.stop()
+                pion_put = pygame.mixer.Sound(os.path.join("music","put_pion.wav"))
+                pion_put.play()
+                # """
+
+                """
+                print("Test Iterative Deepning Alpha Beta Pruning :")
+                now_time = time.time()
+                current_tile, next_tile = gui.getAI().test_iterative_deepning_alpha_beta_pruning(gui.getAboard(), 6)
+                after_time = time.time()
+                print(after_time - now_time)
+                print()
+                """
+
+            else:
+                current_tile = gui.move_by_mouse()
+                print("Choose your tile to move :\n {}".format(current_tile))
+
+            notNone = gui.getAboard().checkEmptyNode(int(current_tile), now)
+            if (notNone == "Good!"):
+                print("cek")
+                possible_move = gui.getAboard().pawn_moves(gui.getAboard().select_node(int(current_tile)))
+                print("\nYou can move your pawn to node:\n {} \n".format(gui.getAboard().print_list(possible_move)))
+                print(possible_move)
+
+                list_possible_move_matrix = []
+                for i in possible_move:
+                    i_inMatrix = gui.fromNodeToMatrix(int(i))
+                    list_possible_move_matrix.append(i_inMatrix)
+                print(list_possible_move_matrix)
+                gui.checkValidMove(list_possible_move_matrix,int(current_tile))
+
+                if now == "AI":
+                    print("Choose your next tile :\n {}".format(next_tile))
+                else:
+                    next_tile = gui.move_by_mouse()
+                transition = gui.getAboard().pawn_transition(gui.getAboard().select_node(int(current_tile)),
+                                                         gui.getAboard().select_node(int(next_tile)), now)
+                print(transition)
+
+                if now == "Human":
+                    if (transition == "Good!"):
+                        now = "AI"
+                    else:
+                        now = "Human"
                 else:
                     now = "Human"
             else:
                 now = "Human"
-        else:
-            now = "Human"
-        print()
+            print()
 
-    gui.getAboard().display_matrix()
-    print(gui.getAboard().get_node_list()[1])
-    gui.draw()
-    pygame.display.update()
-    backsound.stop()
-    winner = gui.get_winner(now)
-    quit_response = gui.quit(winner)
-    return quit_response
+        gui.getAboard().display_matrix()
+        print(gui.getAboard().get_node_list()[1])
+        gui.draw()
+        pygame.display.update()
+        backsound.stop()
+        winner = gui.get_winner(now)
+        quit_response = gui.quit(winner)
+        return quit_response, difficult
 
     """
     while (True):

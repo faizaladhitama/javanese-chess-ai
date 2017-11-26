@@ -1,21 +1,26 @@
 from GUI import play
 
-
-def choose_difficult(diff):
-    choices = {'Easy': 3, 'Normal': 5, 'Hard': 7}
-    return choices.get(diff, 'Normal')
-
-
 def main():
     end_game = False
-    difficult = choose_difficult("Easy")
-    ask_to_restart = ""    
+    ask_to_restart = ""
+    has_play = 0  
+    difficult = None  
     while(ask_to_restart == ""):
         print("finish?")
-        ask_to_restart = play(difficult)
-        print(ask_to_restart)
+        print(has_play)
+        if(difficult == None):
+            ask_to_restart,difficult = play(has_play)
+            has_play+=1
+            print(ask_to_restart)
+        else:
+            ask_to_restart,difficult = play(has_play,difficult)
+            has_play+=1
+            print(ask_to_restart)
         if(ask_to_restart == "N"):
-        	exit()
+            ask_to_restart = ""
+            has_play = 0
         elif(ask_to_restart == "Y"):
-        	ask_to_restart = ""
+            print("Y")
+            ask_to_restart = ""
+            has_play+=1
 main()
